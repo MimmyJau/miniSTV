@@ -12,3 +12,7 @@ docs/
 
 # Dotenv file
 .env
+
+
+# vim
+*.sw[a-z]
