@@ -4,9 +4,9 @@ pragma solidity ^0.8.13;
 uint256 constant MAX_DEPTH = 3;
 
 struct Node {
-    bytes32[] children; // Key of child nodes.
-    bytes32 parent; // Key of parent node.
     bytes32 id; // Key of current node.
+    bytes32 parent; // Key of parent node.
+    bytes32[] children; // Key of child nodes.
 }
 
 contract Tree {
