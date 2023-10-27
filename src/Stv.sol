@@ -1,25 +1,43 @@
-
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-contract Stv {
-    // Proposal object
-    struct Proposal {
-        bytes32 name; // Only allow names of 32 chars or less.
-        uint256 voteCount;
-    }
+import {Tree} from "../src/Tree.sol";
 
-    // Voter object
-    struct Voter {
-        bool voted;
-        uint weight;
-        uint8 vote1; // Limit to at most 256 proposals, so use uint8.
-        uint8 vote2;
-        uint8 vote3;
-    }
+// Possible options for proposal status
+enum Status {
+    Eliminated,
+    Winner,
+    Undecided
+}
 
+// Proposal object
+struct Proposal {
+    bytes32 name; // Only allow names of 32 chars or less.
+    uint256 tally;
+    Status status;
+}
+
+struct VoteTree {
+    uint256 proposal;
+    uint256 votes;
+    uint256 cumulativeVotes;
+}
+
+// Voter object
+struct Voter {
+    bool voted;
+    uint weight;
+    uint8 vote1; // Limit to at most 256 proposals, so use uint8.
+    uint8 vote2; // Might not actually need to hold this data in storage.
+    uint8 vote3;
+}
+
+
+contract Stv is Tree {
     // Public state 
     Proposal[] public proposals;
-    mapping(address => Voter) public voters;
+    // mapping(bytes32 => VoteTree) public VoteTree;
+    mapping(address => Voter) public voters; 
     address public chairperson;
 
     // Errors
@@ -29,7 +47,6 @@ contract Stv {
     error SenderHasNoRightToVote();
     error SubmittedMoreThanThreeVotes();
     error TooManyProposals(uint256 size);
-
 
     // Proposal constructor
     constructor(bytes32[] memory proposalNames) {
@@ -41,7 +58,8 @@ contract Stv {
         for (uint8 i = 0; i < proposalNames.length; i++) {
             proposals.push(Proposal({
                 name: proposalNames[i],
-                voteCount: 0
+                tally: 0,
+                status: Status.Undecided
             }));
         }
     }
@@ -58,21 +76,32 @@ contract Stv {
     }
 
     // Vote
-    function vote(uint8[] calldata votes) external {
-        if (votes.length > 3) revert SubmittedMoreThanThreeVotes();
-        if (voters[msg.sender].weight == 0) revert SenderHasNoRightToVote();
-        if (voters[msg.sender].voted) revert SenderAlreadyVoted();
+    // function vote(uint8[] calldata ballot) external {
+    //     if (ballot.length > 3) revert SubmittedMoreThanThreeVotes();
+    //     if (voters[msg.sender].weight == 0) revert SenderHasNoRightToVote();
+    //     if (voters[msg.sender].voted) revert SenderAlreadyVoted();
 
-        voters[msg.sender].voted = true;
-        voters[msg.sender].vote1 = votes[0];
-        voters[msg.sender].vote2 = votes[1];
-        voters[msg.sender].vote3 = votes[2];
-    }
+    //     votes.push(Vote({
+    //         voter: msg.sender,
+    //         vote1: ballot[0],
+    //         vote2: ballot[1],
+    //         vote3: ballot[2]
+    //     }));
+
+    //     voters[msg.sender].voted = true;
+    //     totalVotes += 1;
+    // }
+
+    // Calculate droop quote
+    // function droopQuota() private view returns (uint256) {
+    //     return (totalVotes - 1) / (proposals.length + 1) + 1; // Division rounds down to nearest int.
+    // }
 
     // Tally winners
-    function tallyWinners() public view {
-        if (msg.sender != chairperson) revert OnlyChairperson();
-        // a lot of calculations here
-    }
+    // function tallyWinners() public view {
+    //     if (msg.sender != chairperson) revert OnlyChairperson();
+
+    //     uint256 quota = droopQuota();
+    // }
 
 }

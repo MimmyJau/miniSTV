@@ -11,7 +11,7 @@ struct Node {
 
 contract Tree {
     bytes32 private root;
-    mapping(bytes32 => Node) public tree;
+    mapping(bytes32 => Node) private tree;
 
     constructor() {
         tree[root].id = root;
