@@ -39,6 +39,7 @@ contract RankVote is Tree {
 
     function updateCumulativeVotes(bytes32 node) private {
         bytes32[] memory children = getChildren(node);
+        tree[node].cumulativeVotes = 0;
         for (uint i = 0; i < children.length; i++) {
             bytes32 child = children[i];
             tree[node].cumulativeVotes += tree[child].cumulativeVotes;
