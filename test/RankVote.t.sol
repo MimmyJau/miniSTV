@@ -47,4 +47,13 @@ contract TestRankVote is Test {
         assertEq(child3CumulativeVotes, 1);
         assertEq(rankVote.getChildren(child3).length, 0);
     }
+
+    function test_AddVoteWithDuplicates() public {
+        uint[] memory vote = new uint[](3);
+        vote[0] = 1;
+        vote[1] = 3;
+        vote[2] = 1;
+        vm.expectRevert();
+        rankVote.addVote(vote);
+    }
 }

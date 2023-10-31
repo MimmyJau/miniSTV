@@ -46,6 +46,18 @@ contract RankVote is Tree {
         tree[node].cumulativeVotes += tree[node].votes;
     }
 
+    function eachElementUnique(uint256[] calldata ranking) private pure returns (bool) {
+        for (uint i = 0; i < ranking.length - 1; i++) {
+            uint proposal = ranking[i];
+            for (uint j = i + 1; j < ranking.length; j++) {
+                if (proposal == ranking[j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     function addVoteRecursive(bytes32 parent, uint256[] calldata proposals) private {
         uint proposal = proposals[0];
         bytes32[] memory children = getChildren(parent);
@@ -69,9 +81,9 @@ contract RankVote is Tree {
         updateCumulativeVotes(parent);
     }
 
-    // Add Vote
     function addVote(uint256[] calldata vote) public {
         bytes32 parent = root;
+        require(eachElementUnique(vote));
         addVoteRecursive(parent, vote);
     }
 
