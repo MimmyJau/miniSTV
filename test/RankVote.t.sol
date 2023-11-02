@@ -9,7 +9,7 @@ contract TestRankVote is Test {
     RankVote public rankVote;
 
     function setUp() public {
-        rankVote = new RankVote();
+        rankVote = new RankVote(4);
     }
 
     function test_AddVote() public {
@@ -49,7 +49,6 @@ contract TestRankVote is Test {
     }
 
     function test_AddMultipleVotes() public {
-        // Add first vote
         uint[] memory vote = new uint[](3);
         vote[0] = 1;
         vote[1] = 2;
@@ -187,6 +186,97 @@ contract TestRankVote is Test {
         assertEq(node2Votes, 1);
         assertEq(node2CumulativeVotes, 1);
         assertEq(rankVote.getChildren(node2).length, 0);
+    }
+
+    function test_tallyVotes() public {
+        uint[] memory vote = new uint[](3);
+        vote[0] = 1;
+        vote[1] = 2;
+        vote[2] = 4;
+        rankVote.addVote(vote);
+
+        uint[] memory vote2 = new uint[](3);
+        vote2[0] = 1;
+        vote2[1] = 3;
+        vote2[2] = 2;
+        rankVote.addVote(vote2);
+
+        uint[] memory vote3 = new uint[](3);
+        vote3[0] = 1;
+        vote3[1] = 4;
+        vote3[2] = 3;
+        rankVote.addVote(vote3);
+
+        uint[] memory vote4 = new uint[](3);
+        vote4[0] = 1;
+        vote4[1] = 4;
+        vote4[2] = 3;
+        rankVote.addVote(vote4);
+
+        uint[] memory vote5 = new uint[](3);
+        vote5[0] = 1;
+        vote5[1] = 4;
+        vote5[2] = 2;
+        rankVote.addVote(vote5);
+
+        uint[] memory vote6 = new uint[](3);
+        vote6[0] = 1;
+        vote6[1] = 2;
+        vote6[2] = 3;
+        rankVote.addVote(vote6);
+
+        uint[] memory vote7 = new uint[](2);
+        vote7[0] = 1;
+        vote7[1] = 2;
+        rankVote.addVote(vote7);
+
+        uint[] memory vote8 = new uint[](2);
+        vote8[0] = 1;
+        vote8[1] = 2;
+        rankVote.addVote(vote8);
+
+        uint[] memory vote9 = new uint[](1);
+        vote9[0] = 1;
+        rankVote.addVote(vote9);
+
+        uint[] memory vote10 = new uint[](1);
+        vote10[0] = 2;
+        rankVote.addVote(vote10);
+        
+        uint[] memory tally = rankVote.tallyVotes();
+        assertEq(tally.length, 5);
+        assertEq(tally[0], 0);
+        assertEq(tally[1], 9);
+        assertEq(tally[2], 1);
+        assertEq(tally[3], 0);
+        assertEq(tally[4], 0);
+
+        rankVote.eliminateProposal(1);
+        tally = rankVote.tallyVotes();
+        assertEq(tally.length, 5);
+        assertEq(tally[0], 0);
+        assertEq(tally[1], 0);
+        assertEq(tally[2], 5);
+        assertEq(tally[3], 1);
+        assertEq(tally[4], 3);
+
+        rankVote.eliminateProposal(2);
+        tally = rankVote.tallyVotes();
+        assertEq(tally.length, 5);
+        assertEq(tally[0], 0);
+        assertEq(tally[1], 0);
+        assertEq(tally[2], 0);
+        assertEq(tally[3], 2);
+        assertEq(tally[4], 4);
+
+        rankVote.eliminateProposal(4);
+        tally = rankVote.tallyVotes();
+        assertEq(tally.length, 5);
+        assertEq(tally[0], 0);
+        assertEq(tally[1], 0);
+        assertEq(tally[2], 0);
+        assertEq(tally[3], 4);
+        assertEq(tally[4], 0);
     }
 
     function test_AddVoteWithDuplicates() public {

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 
 import { Tree } from "../src/Tree.sol";
-import "forge-std/console.sol";
 
 struct Node {
     uint256 proposal;
@@ -12,11 +11,14 @@ struct Node {
 
 contract RankVote is Tree {
     bytes32 private root;
+    uint private numProposals;
     mapping(bytes32 => Node) public tree;
+    mapping(uint256 => bool) private eliminatedProposals;
 
-    constructor() {
+    constructor(uint numProposals_) {
         // TODO: limit on how many rankings?
         root = super.getRoot();
+        numProposals = numProposals_;
     }
 
     // Check if a proposal is already a child of another Node.
@@ -88,21 +90,27 @@ contract RankVote is Tree {
         addVoteRecursive(parent, vote);
     }
 
-    // Get Relevant Rankings
-    function getRankingsWithProposals() public {}
+    function eliminateProposal(uint proposal) public {
+        eliminatedProposals[proposal] = true;
+    }
 
-    // function addRanking(uint256[] calldata ranking) private {
-    //     bytes32 parent = root;
-    //     for (uint i = 0; i < ranking.length; i++) {
-    //         uint proposal = ranking[i];
-    //         bytes32[] memory children = getChildren(parent);
-    //         uint childIndex = findChild(parent, proposal);
-    //         bytes32 child;
-    //         if (childIndex == children.length) {
-    //             child = addChild(parent, ranking[i]);
-    //         } 
-    //         parent = child;
-    //     }
-    // }
 
+    function tallyVotesRecursive(bytes32[] memory layer, uint[] memory tally) private returns (uint[] memory) {
+        for (uint i = 0; i< layer.length; i++) {
+            bytes32 ballot = layer[i];
+            uint proposal = tree[ballot].proposal;
+            if (eliminatedProposals[proposal]) {
+                tally = tallyVotesRecursive(getChildren(ballot), tally);
+            } else {
+                tally[proposal] += tree[ballot].cumulativeVotes;
+            }
+        }
+        return tally;
+    }
+
+    function tallyVotes() public returns (uint[] memory) {
+        uint[] memory tally = new uint[](numProposals + 1); // Index 0 is not used in proposals.
+        bytes32[] memory first = getChildren(root);
+        return tallyVotesRecursive(first, tally);
+    }
 }
