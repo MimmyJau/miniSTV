@@ -13,12 +13,20 @@ contract RankVote is Tree {
     bytes32 private root;
     uint private numProposals;
     mapping(bytes32 => Node) public tree;
-    mapping(uint256 => bool) private eliminatedProposals;
+    mapping(uint256 => bool) private eliminatedProposals; // why is this a mapping? doesn't make sense.
 
     constructor(uint numProposals_) {
         // TODO: limit on how many rankings?
         root = super.getRoot();
         numProposals = numProposals_;
+    }
+
+    function getEliminatedProposals() private view returns (bool[] memory) {
+        bool[] memory eliminatedProposals_ = new bool[](numProposals + 1);
+        for (uint i = 1; i <= numProposals; ++i) {
+            eliminatedProposals_[i] = eliminatedProposals[i];
+        }
+        return eliminatedProposals_;
     }
 
     // Check if a proposal is already a child of another Node.
@@ -94,6 +102,75 @@ contract RankVote is Tree {
         eliminatedProposals[proposal] = true;
     }
 
+    function tallyDescendents(
+        uint[] memory dTally, 
+        bytes32 node, 
+        bool[] memory eliminatedProposals_
+    ) private view returns (uint[] memory) {
+        bytes32[] memory children = getChildren(node);
+        if (children.length == 0) {
+            return dTally;
+        }
+        for (uint i = 0; i < children.length; ++i) {
+            Node memory child = tree[children[i]];
+            if (eliminatedProposals_[child.proposal]) {
+                dTally = tallyDescendents(dTally, children[i], eliminatedProposals_);
+            } else {
+                dTally[child.proposal] += child.cumulativeVotes;
+            }
+        }
+        return dTally;
+    }
+
+    function distributeVotesRecursive(
+        uint[] memory dTally, 
+        bytes32[] memory layer, 
+        uint dProposal, 
+        bool[] memory eliminatedProposals_
+    ) private returns (uint[] memory){
+        for (uint i = 0; i < layer.length; ++i) {
+            Node memory node = tree[layer[i]];
+            if (eliminatedProposals_[node.proposal]) {
+                dTally = distributeVotesRecursive(dTally, getChildren(layer[i]), dProposal, eliminatedProposals_);
+            }
+            if (dProposal == node.proposal) {
+                dTally = tallyDescendents(dTally, layer[i], eliminatedProposals_);
+            }
+        }
+        return dTally;
+    }
+
+    function sumArray(uint[] memory arr) private pure returns (uint) {
+        uint total = 0;
+        for (uint i = 0; i < arr.length; ++i) {
+            total += arr[i];
+        }
+        return total;
+    }
+
+    function distributeVotes(uint[] memory tally, uint dProposal) public returns (uint[] memory) {
+        // Gather all the votes to be distributed.
+        uint[] memory dTally = new uint[](numProposals + 1);
+        bytes32[] memory ballots = getChildren(root);
+        bool[] memory eliminatedProposals_ = getEliminatedProposals();
+        dTally = distributeVotesRecursive(dTally, ballots, dProposal, eliminatedProposals_);
+
+        // Allocate the excess votes based.
+        uint excessVotes = tally[dProposal] - droopQuota();
+        uint total = sumArray(dTally);
+        for (uint i = 1; i <= numProposals; ++i) {
+            tally[i] += dTally[i] * excessVotes / total;
+        }
+        return tally;
+    }
+
+    function totalVotes() public view returns (uint) {
+        return tree[root].cumulativeVotes;
+    }
+
+    function droopQuota() public view returns (uint) {
+        return totalVotes() / (numProposals + 1) + 1;
+    }
 
     function tallyVotesRecursive(bytes32[] memory layer, uint[] memory tally) private returns (uint[] memory) {
         for (uint i = 0; i< layer.length; i++) {

@@ -48,7 +48,7 @@ contract TestRankVote is Test {
         assertEq(rankVote.getChildren(child3).length, 0);
     }
 
-    function test_AddMultipleVotes() public {
+    function addTestVotes() private {
         uint[] memory vote = new uint[](3);
         vote[0] = 1;
         vote[1] = 2;
@@ -102,6 +102,12 @@ contract TestRankVote is Test {
         uint[] memory vote10 = new uint[](1);
         vote10[0] = 2;
         rankVote.addVote(vote10);
+
+    }
+
+
+    function test_AddMultipleVotes() public {
+        addTestVotes();
 
         bytes32 root = rankVote.getRoot();
         (uint rootProposal, uint rootVotes, uint rootCumulativeVotes) = rankVote.tree(root);
@@ -189,59 +195,7 @@ contract TestRankVote is Test {
     }
 
     function test_tallyVotes() public {
-        uint[] memory vote = new uint[](3);
-        vote[0] = 1;
-        vote[1] = 2;
-        vote[2] = 4;
-        rankVote.addVote(vote);
-
-        uint[] memory vote2 = new uint[](3);
-        vote2[0] = 1;
-        vote2[1] = 3;
-        vote2[2] = 2;
-        rankVote.addVote(vote2);
-
-        uint[] memory vote3 = new uint[](3);
-        vote3[0] = 1;
-        vote3[1] = 4;
-        vote3[2] = 3;
-        rankVote.addVote(vote3);
-
-        uint[] memory vote4 = new uint[](3);
-        vote4[0] = 1;
-        vote4[1] = 4;
-        vote4[2] = 3;
-        rankVote.addVote(vote4);
-
-        uint[] memory vote5 = new uint[](3);
-        vote5[0] = 1;
-        vote5[1] = 4;
-        vote5[2] = 2;
-        rankVote.addVote(vote5);
-
-        uint[] memory vote6 = new uint[](3);
-        vote6[0] = 1;
-        vote6[1] = 2;
-        vote6[2] = 3;
-        rankVote.addVote(vote6);
-
-        uint[] memory vote7 = new uint[](2);
-        vote7[0] = 1;
-        vote7[1] = 2;
-        rankVote.addVote(vote7);
-
-        uint[] memory vote8 = new uint[](2);
-        vote8[0] = 1;
-        vote8[1] = 2;
-        rankVote.addVote(vote8);
-
-        uint[] memory vote9 = new uint[](1);
-        vote9[0] = 1;
-        rankVote.addVote(vote9);
-
-        uint[] memory vote10 = new uint[](1);
-        vote10[0] = 2;
-        rankVote.addVote(vote10);
+        addTestVotes();
         
         uint[] memory tally = rankVote.tallyVotes();
         assertEq(tally.length, 5);
@@ -277,6 +231,50 @@ contract TestRankVote is Test {
         assertEq(tally[2], 0);
         assertEq(tally[3], 4);
         assertEq(tally[4], 0);
+    }
+    
+    function test_TotalVotes() public {
+        addTestVotes();
+
+        uint totalVotes = rankVote.totalVotes();
+        assertEq(totalVotes, 10);
+    }
+
+    function test_DroopQuota() public {
+        addTestVotes();
+
+        uint quota = rankVote.droopQuota();
+        assertEq(quota, 3);
+    }
+
+    function test_DistributeVotes() public {
+        addTestVotes();
+
+        uint[] memory tally = rankVote.tallyVotes();
+        assertEq(tally.length, 5);
+        assertEq(tally[0], 0);
+        assertEq(tally[1], 9);
+        assertEq(tally[2], 1);
+        assertEq(tally[3], 0);
+        assertEq(tally[4], 0);
+
+        rankVote.eliminateProposal(1);
+        tally = rankVote.distributeVotes(tally, 1);
+        assertEq(tally.length, 5);
+        assertEq(tally[0], 0);
+        assertEq(tally[1], 9);
+        assertEq(tally[2], 4);
+        assertEq(tally[3], 0);
+        assertEq(tally[4], 2);
+
+        rankVote.eliminateProposal(2);
+        tally = rankVote.distributeVotes(tally, 2);
+        assertEq(tally.length, 5);
+        assertEq(tally[0], 0);
+        assertEq(tally[1], 9);
+        assertEq(tally[2], 4);
+        assertEq(tally[3], 0);
+        assertEq(tally[4], 2);
     }
 
     function test_AddVoteWithDuplicates() public {
