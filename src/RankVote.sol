@@ -21,6 +21,14 @@ contract RankVote is Tree {
         numProposals = numProposals_;
     }
 
+    function totalVotes() public view returns (uint) {
+        return tree[root].cumulativeVotes;
+    }
+
+    function eliminateProposal(uint proposal) public {
+        eliminatedProposals[proposal] = true;
+    }
+
     function getEliminatedProposals() private view returns (bool[] memory) {
         bool[] memory eliminatedProposals_ = new bool[](numProposals + 1);
         for (uint i = 1; i <= numProposals; ++i) {
@@ -57,18 +65,6 @@ contract RankVote is Tree {
         tree[node].cumulativeVotes += tree[node].votes;
     }
 
-    function eachElementUnique(uint256[] calldata ranking) private pure returns (bool) {
-        for (uint i = 0; i < ranking.length - 1; i++) {
-            uint proposal = ranking[i];
-            for (uint j = i + 1; j < ranking.length; j++) {
-                if (proposal == ranking[j]) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     function addVoteRecursive(bytes32 parent, uint256[] calldata proposals) private {
         uint proposal = proposals[0];
         bytes32[] memory children = getChildren(parent);
@@ -98,8 +94,34 @@ contract RankVote is Tree {
         addVoteRecursive(parent, vote);
     }
 
-    function eliminateProposal(uint proposal) public {
-        eliminatedProposals[proposal] = true;
+    ////////////////////////////////////////////////////////////////////////
+    // Helper Functions
+
+    function eachElementUnique(uint256[] calldata ranking) private pure returns (bool) {
+        for (uint i = 0; i < ranking.length - 1; i++) {
+            uint proposal = ranking[i];
+            for (uint j = i + 1; j < ranking.length; j++) {
+                if (proposal == ranking[j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function sumArray(uint[] memory arr) private pure returns (uint) {
+        uint total = 0;
+        for (uint i = 0; i < arr.length; ++i) {
+            total += arr[i];
+        }
+        return total;
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    // STV Functions
+
+    function droopQuota() public view returns (uint) {
+        return totalVotes() / (numProposals + 1) + 1;
     }
 
     function tallyDescendents(
@@ -140,14 +162,6 @@ contract RankVote is Tree {
         return dTally;
     }
 
-    function sumArray(uint[] memory arr) private pure returns (uint) {
-        uint total = 0;
-        for (uint i = 0; i < arr.length; ++i) {
-            total += arr[i];
-        }
-        return total;
-    }
-
     function distributeVotes(uint[] memory tally, uint dProposal) public returns (uint[] memory) {
         // Gather all the votes to be distributed.
         uint[] memory dTally = new uint[](numProposals + 1);
@@ -162,14 +176,6 @@ contract RankVote is Tree {
             tally[i] += dTally[i] * excessVotes / total;
         }
         return tally;
-    }
-
-    function totalVotes() public view returns (uint) {
-        return tree[root].cumulativeVotes;
-    }
-
-    function droopQuota() public view returns (uint) {
-        return totalVotes() / (numProposals + 1) + 1;
     }
 
     function tallyVotesRecursive(bytes32[] memory layer, uint[] memory tally) private returns (uint[] memory) {
