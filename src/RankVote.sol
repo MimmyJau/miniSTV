@@ -118,7 +118,7 @@ contract RankVote is Tree {
     }
 
     ////////////////////////////////////////////////////////////////////////
-    // STV Functions
+    // STV - Core Functions
 
     function droopQuota() public view returns (uint) {
         return totalVotes() / (numProposals + 1) + 1;
@@ -283,4 +283,14 @@ contract RankVote is Tree {
         return maxValues;
     }
 
+    function tallyStv() public returns (uint[] memory) {
+        // tally
+        // find max element
+            // if it crosses threshold, pick winner
+                // if there are more than one, pick higher one
+                // if there's a tie, break tie
+            // if it doesn't cross threshold, eliminate
+                // if there's a tie, break tie
+        // distribute votes 
+    }
 }
