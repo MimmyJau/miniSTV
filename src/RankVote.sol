@@ -196,4 +196,51 @@ contract RankVote is Tree {
         bytes32[] memory first = getChildren(root);
         return tallyVotesRecursive(first, tally);
     }
+    ////////////////////////////////////////////////////////////////////////
+    // STV - Tiebreak Functions
+
+    /// @notice If there's a tie, this function will look at vote count from last tally to break the tie
+    /// @param tiedProposals An array of proposals that are tied
+    /// @param lastTally An array with the vote counts of all proposals from the previous tally
+    /// @return winner Reutnrs winning proposal or 0 if there is still a tie:
+    function tiebreakLastTally(
+        uint256[] memory tiedProposals, 
+        uint256[] memory lastTally
+    ) internal pure returns (uint256 winner) {
+
+        // track proposal(s) with the highest vote counts from last tally
+        uint256[] memory maxProposal = new uint256[](tiedProposals.length);
+        maxProposal[0] = tiedProposals[0];
+        uint256 maxVotes = lastTally[tiedProposals[0]];
+
+        // another index for tracking number of tied proposals
+        uint256 j = 1;
+
+        for (uint256 i = 1; i < tiedProposals; i++) {
+            // store in named variables for clarity
+            uint256 proposal = tiedProposals[i];
+            uint256 tally = lastTally[proposal];
+            // if there's a tie, keep track of all tied proposals
+            if (tally == maxVotes) {
+                maxProposal[j++] = tally;
+            } else if (tally > maxVotes) {
+                // if we find proposal with more votes, clear history of previous tied proposals
+                while (j > 0) {
+                    maxProposal[j--] = 0;
+                }
+                j = 1;
+                maxVotes = tally;
+                maxProposal[0] = proposal;
+            }
+        }
+
+        if (j = 1) {
+            winner = maxProposal[0];
+        } else {
+            winner = 0;
+        }
+
+        return winner;
+    }
+
 }
