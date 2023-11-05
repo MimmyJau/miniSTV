@@ -218,7 +218,7 @@ contract RankVote is Tree {
         // another index for tracking number of tied proposals
         uint256 j = 1;
 
-        for (uint256 i = 1; i < tiedProposals; i++) {
+        for (uint256 i = 1; i < tiedProposals.length; i++) {
             // store in named variables for clarity
             uint256 proposal = tiedProposals[i];
             uint256 tally = lastTally[proposal];
