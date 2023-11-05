@@ -31,7 +31,7 @@ contract RankVote is Tree {
 
     function getEliminatedProposals() private view returns (bool[] memory) {
         bool[] memory eliminatedProposals_ = new bool[](numProposals + 1);
-        for (uint i = 1; i <= numProposals; ++i) {
+        for (uint i = 1; i <= numProposals; i++) {
             eliminatedProposals_[i] = eliminatedProposals[i];
         }
         return eliminatedProposals_;
@@ -111,7 +111,7 @@ contract RankVote is Tree {
 
     function sumArray(uint[] memory arr) private pure returns (uint) {
         uint total = 0;
-        for (uint i = 0; i < arr.length; ++i) {
+        for (uint i = 0; i < arr.length; i++) {
             total += arr[i];
         }
         return total;
@@ -133,7 +133,7 @@ contract RankVote is Tree {
         if (children.length == 0) {
             return dTally;
         }
-        for (uint i = 0; i < children.length; ++i) {
+        for (uint i = 0; i < children.length; i++) {
             Node memory child = tree[children[i]];
             if (eliminatedProposals_[child.proposal]) {
                 dTally = tallyDescendents(dTally, children[i], eliminatedProposals_);
@@ -150,7 +150,7 @@ contract RankVote is Tree {
         uint dProposal, 
         bool[] memory eliminatedProposals_
     ) private returns (uint[] memory){
-        for (uint i = 0; i < layer.length; ++i) {
+        for (uint i = 0; i < layer.length; i++) {
             Node memory node = tree[layer[i]];
             if (eliminatedProposals_[node.proposal]) {
                 dTally = distributeVotesRecursive(dTally, getChildren(layer[i]), dProposal, eliminatedProposals_);
@@ -172,7 +172,7 @@ contract RankVote is Tree {
         // Allocate the excess votes based.
         uint excessVotes = tally[dProposal] - droopQuota();
         uint total = sumArray(dTally);
-        for (uint i = 1; i <= numProposals; ++i) {
+        for (uint i = 1; i <= numProposals; i++) {
             tally[i] += dTally[i] * excessVotes / total;
         }
         return tally;
@@ -196,6 +196,8 @@ contract RankVote is Tree {
         bytes32[] memory first = getChildren(root);
         return tallyVotesRecursive(first, tally);
     }
+
+
     ////////////////////////////////////////////////////////////////////////
     // STV - Tiebreak Functions
 
