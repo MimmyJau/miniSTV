@@ -243,4 +243,44 @@ contract RankVote is Tree {
         return winner;
     }
 
+    /// @notice Finds max element(s) in an array. Returns an array in case there are ties.
+    /// @param tally An array with uint256 elements that may not be unique
+    function maxElementsInArray(uint256[] memory tally) internal view returns (uint256[] memory maxValues) {
+
+        if (tally.length == 0) return new uint256[](0);
+
+        // track proposal(s) with highest vote count
+        uint256[] memory maxProposal = new uint256[](numProposals);
+        uint256 maxVotes = tally[1];
+        maxProposal[0] = 1;
+
+        // another index for tracking number of tied proposals
+        uint256 j = 1;
+
+        for (uint256 i = 2; i < tally.length; i++) {
+            uint256 votes = tally[i];
+            // if there's a tie, keep track of all tied proposals
+            if (votes == maxVotes) {
+                maxProposal[j++] = i;
+            } else if (votes > maxVotes) {
+                // if we find proposal with more votes, clear history of previous tied proposals
+                while (j > 0) {
+                    maxProposal[j--] = 0;
+                }
+                j = 1;
+                // Assigns the current max value.
+                maxVotes = votes;
+                maxProposal[0] = i;
+            }
+        }
+
+        // remove unused elements in array before returning
+        maxValues = new uint256[](j);
+        for (uint256 i = 0; i < j; i++) {
+            maxValues[i] = maxProposal[i];
+        }
+
+        return maxValues;
+    }
+
 }
