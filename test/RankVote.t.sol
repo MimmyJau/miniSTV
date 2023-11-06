@@ -2,7 +2,6 @@ pragma solidity ^0.8.13;
 
 import {Test, console2} from "forge-std/Test.sol";
 import {RankVote, Node} from "../src/RankVote.sol";
-import "forge-std/console.sol";
 
 contract TestRankVote is Test {
     RankVote public rankVote;

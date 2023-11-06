@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import { Tree } from "./Tree.sol";
 
 import "./libraries/ArrayMaxMin.sol";
+import "./libraries/ArrayUtils.sol";
 
 struct Node {
     uint256 proposal;
@@ -13,6 +14,7 @@ struct Node {
 
 contract RankVote is Tree {
     using ArrayMaxMin for uint256[];
+    using ArrayUtils for uint256[];
 
     bytes32 private root;
     uint private numProposals;
@@ -93,31 +95,8 @@ contract RankVote is Tree {
 
     function addVote(uint256[] calldata vote) public {
         bytes32 parent = root;
-        require(eachElementUnique(vote));
+        require(vote.unique());
         addVoteRecursive(parent, vote);
-    }
-
-    ////////////////////////////////////////////////////////////////////////
-    // Helper Functions
-
-    function eachElementUnique(uint256[] calldata ranking) private pure returns (bool) {
-        for (uint i = 0; i < ranking.length - 1; i++) {
-            uint proposal = ranking[i];
-            for (uint j = i + 1; j < ranking.length; j++) {
-                if (proposal == ranking[j]) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    function sumArray(uint[] memory arr) private pure returns (uint) {
-        uint total = 0;
-        for (uint i = 0; i < arr.length; i++) {
-            total += arr[i];
-        }
-        return total;
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -126,7 +105,6 @@ contract RankVote is Tree {
     function droopQuota() public view returns (uint) {
         return totalVotes() / (numProposals + 1) + 1;
     }
-
 
     /// @dev This function distributes a node's votes to all of its descendents
     /// @param dTally The running count of the votes and proposals that are being distributed
@@ -209,7 +187,7 @@ contract RankVote is Tree {
         dTally = distributeVotesRecursive(dTally, first, dProposal);
 
         // allocate the excess votes
-        uint256 total = sumArray(dTally);
+        uint256 total = dTally.sum();
         for (uint256 i = 1; i <= numProposals; i++) {
             tally[i] += dTally[i] * excessVotes / total;
         }
