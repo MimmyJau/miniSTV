@@ -91,4 +91,86 @@ contract TestArrayMaxMin is Test {
         assertEq(maxTally[0], 4);
         assertEq(maxTally[1], 7);
     }
+
+    function test_GetSingleMinimalValue() public {
+        uint256[] memory testArray = new uint256[](10);
+        testArray[1] = 5;
+        testArray[2] = 5;
+        testArray[3] = 15;
+        testArray[4] = 5;
+        testArray[5] = 2;
+        testArray[6] = 15;
+        testArray[7] = 33;
+        testArray[8] = 20;
+        testArray[9] = 9;
+
+        uint256[] memory maxTally = testArray.minTally();
+        assertEq(maxTally.length, 1);
+        assertEq(maxTally[0], 5);
+    }
+
+    function test_GetMultipleMinimalValues() public {
+        uint256[] memory testArray = new uint256[](10);
+        testArray[1] = 5;
+        testArray[2] = 5;
+        testArray[3] = 15;
+        testArray[4] = 5;
+        testArray[5] = 2;
+        testArray[6] = 15;
+        testArray[7] = 33;
+        testArray[8] = 2;
+        testArray[9] = 9;
+
+        uint256[] memory maxTally = testArray.minTally();
+        assertEq(maxTally.length, 2);
+        assertEq(maxTally[0], 5);
+        assertEq(maxTally[1], 8);
+    }
+
+    function test_GetSingleMinimalValueFromSubset() public {
+        uint256[] memory testArray = new uint256[](10);
+        testArray[1] = 5;
+        testArray[2] = 5;
+        testArray[3] = 15;
+        testArray[4] = 5;
+        testArray[5] = 2;
+        testArray[6] = 15;
+        testArray[7] = 33;
+        testArray[8] = 33;
+        testArray[9] = 9;
+
+        uint256[] memory subset = new uint256[](3);
+        subset[0] = 7;
+        subset[1] = 8;
+        subset[2] = 9;
+
+        uint256[] memory maxTally = testArray.minSubset(subset);
+        assertEq(maxTally.length, 1);
+        assertEq(maxTally[0], 9);
+    }
+
+    function test_GetMultipleMinimalValueFromSubset() public {
+        uint256[] memory testArray = new uint256[](10);
+        testArray[1] = 5;
+        testArray[2] = 5;
+        testArray[3] = 16;
+        testArray[4] = 16;
+        testArray[5] = 2;
+        testArray[6] = 15;
+        testArray[7] = 15;
+        testArray[8] = 20;
+        testArray[9] = 9;
+
+        uint256[] memory subset = new uint256[](5);
+        subset[0] = 3;
+        subset[1] = 4;
+        subset[2] = 6;
+        subset[3] = 7;
+        subset[4] = 8;
+
+        uint256[] memory maxTally = testArray.minSubset(subset);
+        assertEq(maxTally.length, 2);
+        assertEq(maxTally[0], 6);
+        assertEq(maxTally[1], 7);
+    }
 }
