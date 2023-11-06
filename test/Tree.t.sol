@@ -14,7 +14,7 @@ contract TreeTest is Test {
     function test_Root() public {
         bytes32 root = tree.getRoot();
         assertEq(root, bytes32(0));
-        console2.logBytes32(root);
+        // console2.logBytes32(root);
     }
 
     function test_OneChild() public {
@@ -25,8 +25,8 @@ contract TreeTest is Test {
         assertEq(child, rootChildren[0]);
         assertEq(childParent, root);
         assertNotEq(root, child);
-        console2.logBytes32(root);
-        console2.logBytes32(child);
+        // console2.logBytes32(root);
+        // console2.logBytes32(child);
     }
 
     function test_TwoChildren() public {
@@ -41,9 +41,9 @@ contract TreeTest is Test {
         assertEq(child2, rootChildren[1]);
         assertEq(child2Parent, root);
         assertNotEq(child, child2);
-        console2.logBytes32(root);
-        console2.logBytes32(child);
-        console2.logBytes32(child2);
+        // console2.logBytes32(root);
+        // console2.logBytes32(child);
+        // console2.logBytes32(child2);
     }
 
     function test_GrandChild() public {
@@ -60,9 +60,9 @@ contract TreeTest is Test {
         assertNotEq(root, child);
         assertNotEq(child, grandchild);
         assertNotEq(root, grandchild);
-        console2.logBytes32(root);
-        console2.logBytes32(child);
-        console2.logBytes32(grandchild);
+        // console2.logBytes32(root);
+        // console2.logBytes32(child);
+        // console2.logBytes32(grandchild);
     }
 
 }
