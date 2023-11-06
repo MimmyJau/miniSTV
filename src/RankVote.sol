@@ -13,10 +13,9 @@ contract RankVote is Tree {
     bytes32 private root;
     uint private numProposals;
     mapping(bytes32 => Node) public tree;
-    mapping(uint256 => bool) private eliminatedProposals; // why is this a mapping? doesn't make sense.
+    mapping(uint256 => bool) private eliminatedProposals; 
 
     constructor(uint numProposals_) {
-        // TODO: limit on how many rankings?
         root = super.getRoot();
         numProposals = numProposals_;
     }
@@ -178,12 +177,17 @@ contract RankVote is Tree {
         return tally;
     }
 
-    function tallyVotesRecursive(bytes32[] memory layer, uint[] memory tally) private returns (uint[] memory) {
+
+    /// @dev Core function for traverseing tree and counting votes
+    /// @param layer The current "layer" of children that is being traversed
+    /// @param tally The running count of votes for each proposal
+    /// @return tally The updated tally
+    function tallyVotesRecursive(bytes32[] memory layer, uint[] memory tally, bool[] memory eliminatedProposals_) private returns (uint[] memory) {
         for (uint i = 0; i< layer.length; i++) {
             bytes32 ballot = layer[i];
             uint proposal = tree[ballot].proposal;
-            if (eliminatedProposals[proposal]) {
-                tally = tallyVotesRecursive(getChildren(ballot), tally);
+            if (eliminatedProposals_[proposal]) {
+                tally = tallyVotesRecursive(getChildren(ballot), tally, eliminatedProposals_);
             } else {
                 tally[proposal] += tree[ballot].cumulativeVotes;
             }
@@ -191,98 +195,19 @@ contract RankVote is Tree {
         return tally;
     }
 
+    /// @notice Entrypoint for tallying votes
+    /// @dev Calls tallyVotesRecursive to traverse tree and count votes
+    /// @return An array with the vote count of each proposal
     function tallyVotes() public returns (uint[] memory) {
-        uint[] memory tally = new uint[](numProposals + 1); // Index 0 is not used in proposals.
+
+        // index 0 is not used in proposals
+        uint[] memory tally = new uint[](numProposals + 1); 
+
         bytes32[] memory first = getChildren(root);
-        return tallyVotesRecursive(first, tally);
-    }
+        bool[] memory eliminatedProposals_ = getEliminatedProposals();
 
+        return tallyVotesRecursive(first, tally, eliminatedProposals_);
 
-    ////////////////////////////////////////////////////////////////////////
-    // STV - Tiebreak Functions
-
-    /// @notice If there's a tie, this function will look at vote count from last tally to break the tie
-    /// @param tiedProposals An array of proposals that are tied
-    /// @param lastTally An array with the vote counts of all proposals from the previous tally
-    /// @return winner Reutnrs winning proposal or 0 if there is still a tie:
-    function tiebreakLastTally(
-        uint256[] memory tiedProposals, 
-        uint256[] memory lastTally
-    ) internal pure returns (uint256 winner) {
-
-        // track proposal(s) with the highest vote counts from last tally
-        uint256[] memory maxProposal = new uint256[](tiedProposals.length);
-        maxProposal[0] = tiedProposals[0];
-        uint256 maxVotes = lastTally[tiedProposals[0]];
-
-        // another index for tracking number of tied proposals
-        uint256 j = 1;
-
-        for (uint256 i = 1; i < tiedProposals.length; i++) {
-            // store in named variables for clarity
-            uint256 proposal = tiedProposals[i];
-            uint256 tally = lastTally[proposal];
-            // if there's a tie, keep track of all tied proposals
-            if (tally == maxVotes) {
-                maxProposal[j++] = tally;
-            } else if (tally > maxVotes) {
-                // if we find proposal with more votes, clear history of previous tied proposals
-                while (j > 0) {
-                    maxProposal[j--] = 0;
-                }
-                j = 1;
-                maxVotes = tally;
-                maxProposal[0] = proposal;
-            }
-        }
-
-        if (j == 1) {
-            winner = maxProposal[0];
-        } else {
-            winner = 0;
-        }
-
-        return winner;
-    }
-
-    /// @notice Finds max element(s) in an array. Returns an array in case there are ties.
-    /// @param tally An array with uint256 elements that may not be unique
-    function maxElementsInArray(uint256[] memory tally) internal view returns (uint256[] memory maxValues) {
-
-        if (tally.length == 0) return new uint256[](0);
-
-        // track proposal(s) with highest vote count
-        uint256[] memory maxProposal = new uint256[](numProposals);
-        uint256 maxVotes = tally[1];
-        maxProposal[0] = 1;
-
-        // another index for tracking number of tied proposals
-        uint256 j = 1;
-
-        for (uint256 i = 2; i < tally.length; i++) {
-            uint256 votes = tally[i];
-            // if there's a tie, keep track of all tied proposals
-            if (votes == maxVotes) {
-                maxProposal[j++] = i;
-            } else if (votes > maxVotes) {
-                // if we find proposal with more votes, clear history of previous tied proposals
-                while (j > 0) {
-                    maxProposal[j--] = 0;
-                }
-                j = 1;
-                // Assigns the current max value.
-                maxVotes = votes;
-                maxProposal[0] = i;
-            }
-        }
-
-        // remove unused elements in array before returning
-        maxValues = new uint256[](j);
-        for (uint256 i = 0; i < j; i++) {
-            maxValues[i] = maxProposal[i];
-        }
-
-        return maxValues;
     }
 
     function tallyStv() public returns (uint[] memory) {
