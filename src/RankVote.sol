@@ -236,7 +236,7 @@ contract RankVote is Tree {
             }
         }
 
-        if (j = 1) {
+        if (j == 1) {
             winner = maxProposal[0];
         } else {
             winner = 0;
