@@ -1,7 +1,9 @@
 
 pragma solidity ^0.8.13;
 
-import { Tree } from "../src/Tree.sol";
+import { Tree } from "./Tree.sol";
+
+import "./libraries/ArrayMaxMin.sol";
 
 struct Node {
     uint256 proposal;
