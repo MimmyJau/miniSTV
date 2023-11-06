@@ -12,6 +12,8 @@ struct Node {
 }
 
 contract RankVote is Tree {
+    using ArrayMaxMin for uint256[];
+
     bytes32 private root;
     uint private numProposals;
     mapping(bytes32 => Node) public tree;
@@ -125,57 +127,93 @@ contract RankVote is Tree {
         return totalVotes() / (numProposals + 1) + 1;
     }
 
+
+    /// @dev This function distributes a node's votes to all of its descendents
+    /// @param dTally The running count of the votes and proposals that are being distributed
+    /// @param node The node whose votes we want to distribute to descendents 
+    /// @return An updated dTally that includes node's descendents
     function tallyDescendents(
         uint[] memory dTally, 
-        bytes32 node, 
-        bool[] memory eliminatedProposals_
+        bytes32 node 
     ) private view returns (uint[] memory) {
+
+        // base case is we reach leaf node and have already aggregated its votes
         bytes32[] memory children = getChildren(node);
-        if (children.length == 0) {
-            return dTally;
-        }
+        if (children.length == 0) return dTally;
+
+        // if not a leaf node, aggregate votes of its child nodes
         for (uint i = 0; i < children.length; i++) {
-            Node memory child = tree[children[i]];
-            if (eliminatedProposals_[child.proposal]) {
-                dTally = tallyDescendents(dTally, children[i], eliminatedProposals_);
+            bytes32 node32 = children[i];
+            uint256 proposal = tree[node32].proposal;
+            uint256 votes = tree[node32].cumulativeVotes;
+
+            // if proposal is valid, aggregate votes, otherwise traverse its descendents
+            if (!eliminatedProposals[proposal]) {
+                dTally[proposal] += votes;
             } else {
-                dTally[child.proposal] += child.cumulativeVotes;
+                dTally = tallyDescendents(dTally, children[i]);
             }
         }
+        
         return dTally;
     }
 
+
+    /// @dev This function traverses tree to find nodes that correspond to dProposal, but it doesn't tally (that's left for tallyDescendents)
+    /// @param dTally The running count of the votes and proposals that dProposal will be distribuetd to
+    /// @param layer The current "layer" in the tree (i.e. the set of children that are being traversed)
+    /// @param dProposal The proposal whose votes we would like to distribute
+    /// @return An array with the updated vote count of each proposal after distribution
     function distributeVotesRecursive(
         uint[] memory dTally, 
         bytes32[] memory layer, 
-        uint dProposal, 
-        bool[] memory eliminatedProposals_
+        uint dProposal 
     ) private returns (uint[] memory){
+
         for (uint i = 0; i < layer.length; i++) {
-            Node memory node = tree[layer[i]];
-            if (eliminatedProposals_[node.proposal]) {
-                dTally = distributeVotesRecursive(dTally, getChildren(layer[i]), dProposal, eliminatedProposals_);
+            bytes32 node32 = layer[i];
+            uint256 proposal = tree[node32].proposal;
+
+            // if the node is eliminated, continue traversing its children
+            if (eliminatedProposals[proposal]) {
+                dTally = distributeVotesRecursive(dTally, getChildren(layer[i]), dProposal);
             }
-            if (dProposal == node.proposal) {
-                dTally = tallyDescendents(dTally, layer[i], eliminatedProposals_);
+
+            // if this node's votes ought to be distributed, tally all relevant descendents
+            if (dProposal == proposal) {
+                dTally = tallyDescendents(dTally, layer[i]);
             }
         }
+
         return dTally;
     }
 
-    function distributeVotes(uint[] memory tally, uint dProposal) public returns (uint[] memory) {
-        // Gather all the votes to be distributed.
-        uint[] memory dTally = new uint[](numProposals + 1);
-        bytes32[] memory ballots = getChildren(root);
-        bool[] memory eliminatedProposals_ = getEliminatedProposals();
-        dTally = distributeVotesRecursive(dTally, ballots, dProposal, eliminatedProposals_);
 
-        // Allocate the excess votes based.
-        uint excessVotes = tally[dProposal] - droopQuota();
-        uint total = sumArray(dTally);
-        for (uint i = 1; i <= numProposals; i++) {
+    /// @notice Entrypoint for distributing votes (after proposal has won or been eliminated)
+    /// @dev Calls distributeVotesRecursive to traverse tree and count votes
+    /// @param tally Array of current vote counts for each proposal
+    /// @param dProposal The proposal whose votes we would like to distribute
+    /// @param excessVotes Number of excess votes to be distribuetd
+    /// @return An array with the vote count of each proposal after distribution
+    function distributeVotes(
+        uint256[] memory tally, 
+        uint256 dProposal,
+        uint256 excessVotes
+    ) public returns (uint[] memory) {
+
+        // index 0 is not used in proposals
+        uint256[] memory dTally = new uint256[](numProposals + 1);
+        bytes32[] memory first = getChildren(root);
+
+        // aggregate all the votes to be distributed
+        dTally = distributeVotesRecursive(dTally, first, dProposal);
+
+        // allocate the excess votes
+        uint256 total = sumArray(dTally);
+        for (uint256 i = 1; i <= numProposals; i++) {
             tally[i] += dTally[i] * excessVotes / total;
         }
+
         return tally;
     }
 
@@ -184,31 +222,37 @@ contract RankVote is Tree {
     /// @param layer The current "layer" of children that is being traversed
     /// @param tally The running count of votes for each proposal
     /// @return tally The updated tally
-    function tallyVotesRecursive(bytes32[] memory layer, uint[] memory tally, bool[] memory eliminatedProposals_) private returns (uint[] memory) {
+    function tallyVotesRecursive(
+        bytes32[] memory layer, 
+        uint[] memory tally 
+    ) private returns (uint[] memory) {
+
         for (uint i = 0; i< layer.length; i++) {
-            bytes32 ballot = layer[i];
-            uint proposal = tree[ballot].proposal;
-            if (eliminatedProposals_[proposal]) {
-                tally = tallyVotesRecursive(getChildren(ballot), tally, eliminatedProposals_);
+            bytes32 node32 = layer[i];
+            uint proposal = tree[node32].proposal;
+
+            // if proposal stil valid, then add votes
+            if (!eliminatedProposals[proposal]) {
+                tally[proposal] += tree[node32].cumulativeVotes;
             } else {
-                tally[proposal] += tree[ballot].cumulativeVotes;
+                tally = tallyVotesRecursive(getChildren(node32), tally);
             }
         }
+
         return tally;
     }
+
 
     /// @notice Entrypoint for tallying votes
     /// @dev Calls tallyVotesRecursive to traverse tree and count votes
     /// @return An array with the vote count of each proposal
     function tallyVotes() public returns (uint[] memory) {
-
         // index 0 is not used in proposals
         uint[] memory tally = new uint[](numProposals + 1); 
 
         bytes32[] memory first = getChildren(root);
-        bool[] memory eliminatedProposals_ = getEliminatedProposals();
 
-        return tallyVotesRecursive(first, tally, eliminatedProposals_);
+        return tallyVotesRecursive(first, tally);
 
     }
 

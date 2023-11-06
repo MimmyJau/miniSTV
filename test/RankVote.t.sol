@@ -258,7 +258,8 @@ contract TestRankVote is Test {
         assertEq(tally[4], 0);
 
         rankVote.eliminateProposal(1);
-        tally = rankVote.distributeVotes(tally, 1);
+        uint256 excessVotes = tally[1] - rankVote.droopQuota();
+        tally = rankVote.distributeVotes(tally, 1, excessVotes);
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 9);
@@ -267,7 +268,8 @@ contract TestRankVote is Test {
         assertEq(tally[4], 2);
 
         rankVote.eliminateProposal(2);
-        tally = rankVote.distributeVotes(tally, 2);
+        excessVotes = tally[2] - rankVote.droopQuota();
+        tally = rankVote.distributeVotes(tally, 2, excessVotes);
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 9);
