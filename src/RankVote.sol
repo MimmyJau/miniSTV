@@ -17,7 +17,7 @@ contract RankVote is Tree {
     using ArrayUtils for uint256[];
 
     bytes32 private root;
-    uint private numProposals;
+    uint256 private numProposals;
     mapping(bytes32 => Node) public tree;
     mapping(uint256 => bool) private eliminatedProposals; 
 
@@ -25,6 +25,9 @@ contract RankVote is Tree {
         root = super.getRoot();
         numProposals = numProposals_;
     }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Rank Votes - Helper Functions
 
     function totalVotes() public view returns (uint) {
         return tree[root].cumulativeVotes;
@@ -41,6 +44,9 @@ contract RankVote is Tree {
         }
         return eliminatedProposals_;
     }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Rank Votes - Core Functions
 
     // Check if a proposal is already a child of another Node.
     function findChild(bytes32 parent, uint256 proposal) private view returns (uint256) {
@@ -94,15 +100,17 @@ contract RankVote is Tree {
     }
 
     function addVote(uint256[] calldata vote) public {
-        bytes32 parent = root;
         require(vote.unique());
+        bytes32 parent = root;
         addVoteRecursive(parent, vote);
     }
 
     ////////////////////////////////////////////////////////////////////////
     // STV - Core Functions
 
-    function droopQuota() public view returns (uint) {
+    /// @notice Calculates the droop quota, the minimum votes required for a proposal to "win"
+    /// @return The droop quota as an integer
+    function droopQuota() public view returns (uint256) {
         return totalVotes() / (numProposals + 1) + 1;
     }
 
