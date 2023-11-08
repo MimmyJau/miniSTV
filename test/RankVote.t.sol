@@ -12,6 +12,9 @@ contract RankVoteHarness is RankVote {
         return getActiveProposals();
     }
         
+    function exposed_finalize(uint256 numWinners) external returns (uint256[] memory winners) {
+        return super.finalize(numWinners);
+    }
 }
 contract TestRankVote is Test {
     RankVoteHarness public rankVote;
@@ -304,6 +307,61 @@ contract TestRankVote is Test {
         assertEq(tally[2], 4);
         assertEq(tally[3], 0);
         assertEq(tally[4], 2);
+    }
+
+    function test_FinalizeNotEnoughWinners() public {
+        addTestVotes();
+
+        uint256[] memory winners = rankVote.exposed_finalize(3);
+        assertEq(winners.length, 2);
+        assertEq(winners[0], 1);
+        assertEq(winners[1], 2);
+    }
+
+    function test_FinalizeEnoughWinners() public {
+        addTestVotes();
+
+        uint[] memory vote11 = new uint[](2);
+        vote11[0] = 2;
+        vote11[1] = 4;
+        rankVote.addVote(vote11);
+
+        uint[] memory vote12 = new uint[](1);
+        vote12[0] = 2;
+        rankVote.addVote(vote12);
+
+        uint256[] memory winners = rankVote.exposed_finalize(3);
+        assertEq(winners.length, 3);
+        assertEq(winners[0], 1);
+        assertEq(winners[1], 2);
+        assertEq(winners[2], 4);
+    }
+
+    function test_FinalizeEnoughWinnersMany() public {
+        for (uint256 i = 0; i < 1000; i++) {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 1;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 100; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 2;
+            vote[1] = 4;
+            rankVote.addVote(vote);
+        }
+
+        uint[] memory vote = new uint[](3);
+        vote[0] = 1;
+        vote[1] = 2;
+        vote[2] = 3;
+        rankVote.addVote(vote);
+
+        uint256[] memory winners = rankVote.exposed_finalize(3);
+        assertEq(winners.length, 3);
+        assertEq(winners[0], 1);
+        assertEq(winners[1], 2);
+        assertEq(winners[2], 4);
     }
 
     function test_AddVoteWithDuplicates() public {

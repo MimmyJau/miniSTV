@@ -269,14 +269,82 @@ contract RankVote is Tree {
 
     }
 
-    function tallyStv() public returns (uint[] memory) {
-        // tally
-        // find max element
-            // if it crosses threshold, pick winner
-                // if there are more than one, pick higher one
+    /// @notice Determine winners of the STV vote
+    /// @dev The function doesn't guarantee that the number of winners 
+    ///      (i.e. propoosals whose vote counts will surpass the quota) 
+    ///      will be equal to argument `numWinners` passed in as a param. 
+    ///      This is more likely to occur if there are a lot of proposals 
+    ///      and very few votes. 
+    /// @param numWinners The ideal number of winners; algorithm will 
+    ///        attempt to generate this number winners
+    /// @return winners A list of winners
+    function finalize(uint256 numWinners) internal returns (uint256[] memory winners) {
+
+        winners = new uint256[](numWinners);
+        uint256 numWinners_ = 0;
+        uint256 quota = droopQuota();
+
+        // when a proposal exceeds the quota or is eliminated, decrement this number 
+        uint256 activeProposals = numProposals;
+
+        // count votes
+        uint256[] memory tally = tallyVotes();
+
+        while (numWinners_ < numWinners && activeProposals > 0) {
+
+            // find max element
+            uint256[] memory maxIndices = tally.maxSubset(getActiveProposals());
+
+            // pick one of the propoosals and get their vote count
+            uint256 proposal = maxIndices[0];
+            uint256 count = tally[proposal];
+            uint256 excessVotes;
+
+            // if votes count crosses threshold, we'll pick a winner
+            if (count > quota) {
                 // if there's a tie, break tie
-            // if it doesn't cross threshold, eliminate
-                // if there's a tie, break tie
-        // distribute votes 
+                if (maxIndices.length > 1) {
+                    // TODO: Fix this.
+                    proposal = maxIndices[0]; 
+                } 
+
+                winners[numWinners_++] = proposal;
+                eliminateProposal(proposal);
+                excessVotes = count - quota;
+            } 
+
+            // if vote count doesn't cross threshold, eliminate
+            else {
+                uint256[] memory minIndices = tally.minTally();
+                proposal = minIndices[0];
+
+                if (minIndices.length > 1) {
+                    // TODO: Fix this.
+                    proposal = minIndices[0];
+                }
+
+                eliminateProposal(proposal);
+                excessVotes = tally[proposal];
+            }
+
+            activeProposals--;
+
+            // distribute votes 
+            if (numWinners_ < numWinners) {
+                tally = distributeVotes(tally, proposal, excessVotes);
+            }
+        }
+
+        if (numWinners_ != numWinners) {
+            uint256[] memory winners_ = new uint256[](numWinners_);
+            for (uint256 i = 0; i < numWinners_; i++) {
+                winners_[i] = winners[i];
+            }
+
+            winners = winners_;
+        }
+
+        return winners;
+
     }
 }
