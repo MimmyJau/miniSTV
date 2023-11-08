@@ -221,6 +221,8 @@ contract RankVote is Tree {
 
         // allocate the excess votes
         uint256 total = dTally.sum();
+        if (total == 0)  return tally;
+
         for (uint256 i = 1; i <= numProposals; i++) {
             tally[i] += dTally[i] * excessVotes / total;
         }
