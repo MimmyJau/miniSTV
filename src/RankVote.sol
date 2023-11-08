@@ -45,6 +45,32 @@ contract RankVote is Tree {
         return eliminatedProposals_;
     }
 
+    /// @dev Returns a list of proposals that are still active. We need 
+    ///      to pass in as a param to maxSubset() when counting votes.
+    /// @return activeProposals A list of proposals that haven't been eliminated
+    function getActiveProposals() internal view returns (uint256[] memory activeProposals) {
+        uint256 countActiveProposals = 0;
+
+        // count how many active proposals there are
+        for (uint256 i = 1; i <= numProposals; i++) {
+            if (!eliminatedProposals[i]) {
+                countActiveProposals++;
+            }
+        }
+
+        activeProposals = new uint256[](countActiveProposals);
+        uint256 j = 0;
+
+        // assign active proposals to memory array
+        for (uint256 i = 1; i <= numProposals; i++) {
+            if (!eliminatedProposals[i]) {
+                activeProposals[j++] = i;
+            }
+        }
+
+        return activeProposals;
+    }
+
     ////////////////////////////////////////////////////////////////////////
     // Rank Votes - Core Functions
 

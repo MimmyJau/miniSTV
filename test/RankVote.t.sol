@@ -1,15 +1,42 @@
 pragma solidity ^0.8.13;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {RankVote, Node} from "../src/RankVote.sol";
+import {RankVote} from "../src/RankVote.sol";
 
 import "forge-std/console.sol";
 
+contract RankVoteHarness is RankVote {
+    constructor(uint numProposals_) RankVote(numProposals_) {}
+
+    function exposed_getActiveProposals() external view returns (uint256[] memory activeProposals) {
+        return getActiveProposals();
+    }
+        
+}
 contract TestRankVote is Test {
-    RankVote public rankVote;
+    RankVoteHarness public rankVote;
 
     function setUp() public {
-        rankVote = new RankVote(4);
+        rankVote = new RankVoteHarness(4);
+    }
+
+    function test_GetActiveProposals() public {
+        addTestVotes();
+
+        uint256[] memory activeProposals = rankVote.exposed_getActiveProposals();
+        assertEq(activeProposals.length, 4);
+        assertEq(activeProposals[0], 1);
+        assertEq(activeProposals[1], 2);
+        assertEq(activeProposals[2], 3);
+        assertEq(activeProposals[3], 4);
+
+        rankVote.eliminateProposal(1);
+
+        activeProposals = rankVote.exposed_getActiveProposals();
+        assertEq(activeProposals.length, 3);
+        assertEq(activeProposals[0], 2);
+        assertEq(activeProposals[1], 3);
+        assertEq(activeProposals[2], 4);
     }
 
     function test_AddVote() public {
