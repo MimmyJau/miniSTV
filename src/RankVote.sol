@@ -151,7 +151,6 @@ contract RankVote is Tree {
 
         // base case is we reach leaf node and have already aggregated its votes
         bytes32[] memory children = getChildren(node);
-        if (children.length == 0) return dTally;
 
         // if not a leaf node, aggregate votes of its child nodes
         for (uint i = 0; i < children.length; i++) {
@@ -169,7 +168,6 @@ contract RankVote is Tree {
         
         return dTally;
     }
-
 
     /// @dev This function traverses tree to find nodes that correspond to dProposal, but it doesn't tally (that's left for tallyDescendents)
     /// @param dTally The running count of the votes and proposals that dProposal will be distribuetd to
@@ -230,41 +228,17 @@ contract RankVote is Tree {
         return tally;
     }
 
+    /// @notice Entrypoint for tallying votes
+    /// @dev Calls tallyDescendents to traverse tree and count votes
+    /// @return tally An array with the vote count of each proposal
+    function tallyVotes() public view returns (uint[] memory tally) {
+        // index 0 is not used in proposals
+        tally = new uint256[](numProposals + 1);
 
-    /// @dev Core function for traverseing tree and counting votes
-    /// @param layer The current "layer" of children that is being traversed
-    /// @param tally The running count of votes for each proposal
-    /// @return tally The updated tally
-    function tallyVotesRecursive(
-        bytes32[] memory layer, 
-        uint[] memory tally 
-    ) private returns (uint[] memory) {
-
-        for (uint i = 0; i< layer.length; i++) {
-            bytes32 node32 = layer[i];
-            uint proposal = tree[node32].proposal;
-
-            // if proposal stil valid, then add votes
-            if (!eliminatedProposals[proposal]) {
-                tally[proposal] += tree[node32].cumulativeVotes;
-            } else {
-                tally = tallyVotesRecursive(getChildren(node32), tally);
-            }
-        }
+        // aggregate all the votes to be distributed
+        tally = tallyDescendents(tally, root);
 
         return tally;
-    }
-
-    /// @notice Entrypoint for tallying votes
-    /// @dev Calls tallyVotesRecursive to traverse tree and count votes
-    /// @return An array with the vote count of each proposal
-    function tallyVotes() public returns (uint[] memory) {
-        // index 0 is not used in proposals
-        uint[] memory tally = new uint[](numProposals + 1); 
-
-        bytes32[] memory first = getChildren(root);
-
-        return tallyVotesRecursive(first, tally);
     }
 
     
