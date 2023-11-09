@@ -289,6 +289,8 @@ contract RankVote is Tree {
 
         // count votes
         uint256[] memory tally = tallyVotes();
+        uint256[] memory firstTally = tally.copy();
+        uint256[] memory lastTally;
 
         while (numWinners_ < numWinners && activeProposals > 0) {
 
@@ -331,6 +333,7 @@ contract RankVote is Tree {
 
             // distribute votes 
             if (numWinners_ < numWinners) {
+                lastTally = tally.copy();
                 tally = distributeVotes(tally, proposal, excessVotes);
             }
         }

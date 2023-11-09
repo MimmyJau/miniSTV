@@ -49,4 +49,26 @@ contract TestArrayUtils is Test {
                         34245808923346684174668417);
     }
 
+    function test_CopyArray() public {
+
+        uint256[] memory xs = new uint256[](10);
+        xs[0] = 0;
+        xs[1] = 1;
+        xs[2] = 2;
+        xs[3] = 3;
+        xs[4] = 4;
+        xs[5] = 5;
+        xs[6] = 6;
+        xs[7] = 7;
+        xs[8] = 8;
+        xs[9] = 9;
+
+        uint256[] memory ys = xs;
+        uint256[] memory zs = xs.copy();
+        xs[1] = 99;
+
+        assertEq(ys[1], 99);
+        assertEq(zs[1], 1);
+    }
+
 }

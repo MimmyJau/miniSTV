@@ -13,6 +13,19 @@ library ArrayUtils {
         return total;
     }
 
+    /// @dev SHALLOW copy of a uint256 array (since by default, assignments from memory to memory create references)
+    /// @param self The array being copied
+    /// @return copy_ The copy of the array
+    function copy(uint256[] memory self) internal pure returns (uint256[] memory copy_) {
+        copy_ = new uint256[](self.length);
+
+        for (uint256 i = 0; i < self.length; i++) {
+            copy_[i] = self[i];
+        }
+
+        return copy_;
+    }
+
     /// @notice Check if each element in an array is unique
     /// @dev This function only works on calldata arrays
     /// @param self The array whose elements you want to check
