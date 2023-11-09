@@ -16,7 +16,7 @@ contract RankVoteHarness is RankVote {
         uint256[] memory firstTally, 
         uint256[] memory lastTally, 
         uint256[] memory tiedProposals
-    ) external view returns (uint256) {
+    ) external pure returns (uint256) {
         return tiebreakWinner(
             firstTally,
             lastTally,
