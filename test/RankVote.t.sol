@@ -670,6 +670,57 @@ contract TestRankVote is Test {
         assertEq(winners[2], 4);
     }
 
+    /// @dev These numbers were spec'd so both 3 and 4 have no first-rank votes,
+    ///      but after 1 wins and its votes are distributed, 4 has more votes than 3, 
+    ///      but after 2 wins and its votes are distributed, there is another tie.
+    function test_finalizeLoserTiebreakUsingLastTally() public {
+        {
+            uint[] memory vote = new uint[](4);
+            vote[0] = 1;
+            vote[1] = 2;
+            vote[2] = 4;
+            vote[3] = 3;
+            for (uint256 i = 0; i < 2; i++) {
+                rankVote.addVote(vote);
+            }
+        }
+
+        {
+            uint[] memory vote = new uint[](4);
+            vote[0] = 1;
+            vote[1] = 2;
+            vote[2] = 3;
+            vote[3] = 4;
+            for (uint256 i = 0; i < 4; i++) {
+                rankVote.addVote(vote);
+            }
+        }
+
+        {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 1;
+            vote[1] = 4;
+            for (uint256 i = 0; i < 1; i++) {
+                rankVote.addVote(vote);
+            }
+        }
+
+        {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 1;
+            for (uint256 i = 0; i < 3; i++) {
+                rankVote.addVote(vote);
+            }
+        }
+
+        uint256[] memory winners = rankVote.exposed_finalize(3);
+        assertEq(winners.length, 3);
+        assertEq(winners[0], 1);
+        assertEq(winners[1], 2);
+        assertEq(winners[2], 4);
+
+    }
+
     function test_finalizeThreeWayTieInFirstTally() public {
         {
             uint[] memory vote = new uint[](3);
