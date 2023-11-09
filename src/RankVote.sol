@@ -255,7 +255,6 @@ contract RankVote is Tree {
         return tally;
     }
 
-
     /// @notice Entrypoint for tallying votes
     /// @dev Calls tallyVotesRecursive to traverse tree and count votes
     /// @return An array with the vote count of each proposal
@@ -266,7 +265,68 @@ contract RankVote is Tree {
         bytes32[] memory first = getChildren(root);
 
         return tallyVotesRecursive(first, tally);
+    }
 
+    
+    /// @dev Tiebreaker when >1 proposal surpasses quota
+    /// @param firstTally The intiial tally. Shows who has the most first-rank votes.
+    /// @param lastTally The previous tally
+    /// @param tiedProposals Array of tied proposals
+    /// @return winner The proposoal that "won" the tiebreak
+    function tiebreakWinner(
+        uint256[] memory firstTally, 
+        uint256[] memory lastTally, 
+        uint256[] memory tiedProposals
+    ) internal pure returns (uint256 winner) {
+        if (lastTally.length == 0) return tiedProposals[0];
+
+        // 1) who had the most 1st-rank votes
+        uint256[] memory winners = firstTally.maxSubset(tiedProposals);
+        if (winners.length == 1) {
+            return winners[0];
+        }
+
+        // 2) who had most votes in last tally
+        winners = lastTally.maxSubset(tiedProposals);
+        if (winners.length == 1) {
+            return winner = winners[0];
+        } 
+
+
+        // 3) "random" TODO: implement actual RNG
+        winner = winners[0];
+
+        return winner;
+    }
+
+    /// @dev Tiebreaker when >1 proposal are eligible to be eliminated 
+    /// @param firstTally The intiial tally. Shows who has the least first-rank votes.
+    /// @param lastTally The previous tally
+    /// @param tiedProposals Array of tied proposals
+    /// @return loser The proposal that "lost" the tiebreak
+    function tiebreakLoser(
+        uint256[] memory firstTally, 
+        uint256[] memory lastTally, 
+        uint256[] memory tiedProposals
+    ) internal pure returns (uint256 loser) {
+        if (lastTally.length == 0) return tiedProposals[0];
+
+        // 1) who had the least 1st-rank votes
+        uint256[] memory losers = firstTally.minSubset(tiedProposals);
+        if (losers.length == 1) {
+            return losers[0];
+        }
+
+        // 2) who had least votes in last tally
+        losers = lastTally.minSubset(tiedProposals);
+        if (losers.length == 1) {
+            loser = losers[0];
+        } 
+
+        // 3) "random" TODO: implement actual RNG
+        loser = losers[0];
+
+        return loser;
     }
 
     /// @notice Determine winners of the STV vote
@@ -293,7 +353,6 @@ contract RankVote is Tree {
         uint256[] memory lastTally;
 
         while (numWinners_ < numWinners && activeProposals > 0) {
-
             // find max element
             uint256[] memory maxIndices = tally.maxSubset(getActiveProposals());
 
@@ -306,8 +365,8 @@ contract RankVote is Tree {
             if (count > quota) {
                 // if there's a tie, break tie
                 if (maxIndices.length > 1) {
-                    // TODO: Fix this.
-                    proposal = maxIndices[0]; 
+                    proposal = tiebreakWinner(firstTally, lastTally, maxIndices);
+
                 } 
 
                 winners[numWinners_++] = proposal;
@@ -321,9 +380,8 @@ contract RankVote is Tree {
                 proposal = minIndices[0];
 
                 if (minIndices.length > 1) {
-                    // TODO: Fix this.
-                    proposal = minIndices[0];
-                }
+                    proposal = tiebreakLoser(firstTally, lastTally, minIndices);
+                } 
 
                 eliminateProposal(proposal);
                 excessVotes = tally[proposal];

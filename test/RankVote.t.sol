@@ -11,11 +11,38 @@ contract RankVoteHarness is RankVote {
     function exposed_getActiveProposals() external view returns (uint256[] memory activeProposals) {
         return getActiveProposals();
     }
+
+    function exposed_tiebreakWinner(
+        uint256[] memory firstTally, 
+        uint256[] memory lastTally, 
+        uint256[] memory tiedProposals
+    ) external view returns (uint256) {
+        return tiebreakWinner(
+            firstTally,
+            lastTally,
+            tiedProposals
+        );
+    }
+
+    function exposed_tiebreakLoser(
+        uint256[] memory firstTally, 
+        uint256[] memory lastTally, 
+        uint256[] memory tiedProposals
+    ) external pure returns (uint256) {
+        return tiebreakLoser(
+            firstTally,
+            lastTally,
+            tiedProposals
+        );
+    }
         
-    function exposed_finalize(uint256 numWinners) external returns (uint256[] memory winners) {
+    function exposed_finalize(
+        uint256 numWinners
+    ) external returns (uint256[] memory winners) {
         return super.finalize(numWinners);
     }
 }
+
 contract TestRankVote is Test {
     RankVoteHarness public rankVote;
 
@@ -76,6 +103,15 @@ contract TestRankVote is Test {
         assertEq(child3Votes, 1);
         assertEq(child3CumulativeVotes, 1);
         assertEq(rankVote.getChildren(child3).length, 0);
+    }
+
+    function test_AddVoteWithDuplicates() public {
+        uint[] memory vote = new uint[](3);
+        vote[0] = 1;
+        vote[1] = 3;
+        vote[2] = 1;
+        vm.expectRevert();
+        rankVote.addVote(vote);
     }
 
     function addTestVotes() private {
@@ -351,11 +387,13 @@ contract TestRankVote is Test {
             rankVote.addVote(vote);
         }
 
-        uint[] memory vote = new uint[](3);
-        vote[0] = 1;
-        vote[1] = 2;
-        vote[2] = 3;
-        rankVote.addVote(vote);
+        {
+            uint[] memory vote = new uint[](3);
+            vote[0] = 1;
+            vote[1] = 2;
+            vote[2] = 3;
+            rankVote.addVote(vote);
+        }
 
         uint256[] memory winners = rankVote.exposed_finalize(3);
         assertEq(winners.length, 3);
@@ -364,12 +402,329 @@ contract TestRankVote is Test {
         assertEq(winners[2], 4);
     }
 
-    function test_AddVoteWithDuplicates() public {
-        uint[] memory vote = new uint[](3);
-        vote[0] = 1;
-        vote[1] = 3;
-        vote[2] = 1;
-        vm.expectRevert();
-        rankVote.addVote(vote);
+    // Unit test
+    function test_tiebreakWinnerByFirstTally() public {
+        uint256[] memory firstTally = new uint256[](11);
+        firstTally[1] = 119;
+        firstTally[2] = 96;
+        firstTally[3] = 754;
+        firstTally[4] = 220;
+        firstTally[5] = 278;
+        firstTally[6] = 583;
+        firstTally[7] = 198;
+        firstTally[8] = 501;
+        firstTally[9] = 480;
+        firstTally[10] = 390;
+
+        uint256[] memory lastTally = new uint256[](11);
+        lastTally[1] = 133;
+        lastTally[2] = 221;
+        lastTally[3] = 754;
+        lastTally[4] = 457;
+        lastTally[5] = 406;
+        lastTally[6] = 583;
+        lastTally[7] = 198;
+        lastTally[8] = 593;
+        lastTally[9] = 502;
+        lastTally[10] = 443;
+
+        uint256[] memory tiedProposals = new uint256[](2);
+        tiedProposals[0] = 6;
+        tiedProposals[1] = 8;
+
+
+        uint256 winner = rankVote.exposed_tiebreakWinner(firstTally, lastTally, tiedProposals);
+        assertEq(winner, 6);
+    }
+
+    // Unit test
+    function test_tiebreakWinnerByLastTally() public {
+        uint256[] memory firstTally = new uint256[](11);
+        firstTally[1] = 119;
+        firstTally[2] = 96;
+        firstTally[3] = 754;
+        firstTally[4] = 220;
+        firstTally[5] = 278;
+        firstTally[6] = 583;
+        firstTally[7] = 198;
+        firstTally[8] = 583;
+        firstTally[9] = 480;
+        firstTally[10] = 390;
+
+        uint256[] memory lastTally = new uint256[](11);
+        lastTally[1] = 133;
+        lastTally[2] = 221;
+        lastTally[3] = 754;
+        lastTally[4] = 457;
+        lastTally[5] = 406;
+        lastTally[6] = 583;
+        lastTally[7] = 198;
+        lastTally[8] = 593;
+        lastTally[9] = 502;
+        lastTally[10] = 443;
+
+        uint256[] memory tiedProposals = new uint256[](2);
+        tiedProposals[0] = 2;
+        tiedProposals[1] = 7;
+
+
+        uint256 winner = rankVote.exposed_tiebreakLoser(firstTally, lastTally, tiedProposals);
+        assertEq(winner, 2);
+    }
+
+    // Unit test
+    function test_tiebreakLoserByFirstTally() public {
+        uint256[] memory firstTally = new uint256[](11);
+        firstTally[1] = 119;
+        firstTally[2] = 96;
+        firstTally[3] = 754;
+        firstTally[4] = 220;
+        firstTally[5] = 278;
+        firstTally[6] = 583;
+        firstTally[7] = 198;
+        firstTally[8] = 583;
+        firstTally[9] = 480;
+        firstTally[10] = 390;
+
+        uint256[] memory lastTally = new uint256[](11);
+        lastTally[1] = 133;
+        lastTally[2] = 221;
+        lastTally[3] = 754;
+        lastTally[4] = 457;
+        lastTally[5] = 406;
+        lastTally[6] = 583;
+        lastTally[7] = 198;
+        lastTally[8] = 593;
+        lastTally[9] = 502;
+        lastTally[10] = 443;
+
+        uint256[] memory tiedProposals = new uint256[](2);
+        tiedProposals[0] = 2;
+        tiedProposals[1] = 7;
+
+
+        uint256 winner = rankVote.exposed_tiebreakLoser(firstTally, lastTally, tiedProposals);
+        assertEq(winner, 2);
+    }
+
+    // Unit test
+    function test_tiebreakLoserByLastTally() public {
+        uint256[] memory firstTally = new uint256[](11);
+        firstTally[1] = 119;
+        firstTally[2] = 96;
+        firstTally[3] = 754;
+        firstTally[4] = 220;
+        firstTally[5] = 278;
+        firstTally[6] = 583;
+        firstTally[7] = 96;
+        firstTally[8] = 583;
+        firstTally[9] = 480;
+        firstTally[10] = 390;
+
+        uint256[] memory lastTally = new uint256[](11);
+        lastTally[1] = 133;
+        lastTally[2] = 221;
+        lastTally[3] = 754;
+        lastTally[4] = 457;
+        lastTally[5] = 406;
+        lastTally[6] = 583;
+        lastTally[7] = 198;
+        lastTally[8] = 593;
+        lastTally[9] = 502;
+        lastTally[10] = 443;
+
+        uint256[] memory tiedProposals = new uint256[](2);
+        tiedProposals[0] = 2;
+        tiedProposals[1] = 7;
+
+
+        uint256 winner = rankVote.exposed_tiebreakLoser(firstTally, lastTally, tiedProposals);
+        assertEq(winner, 7);
+    }
+
+    /// @dev These numbers were spec'd so that after proposal 1 wins,
+    ///      distributing its votes will cause a tie between 2 and 3.
+    function test_finalizeWinnerTiebreakUsingFirstTally() public {
+        rankVote = new RankVoteHarness(3);
+
+        for (uint256 i = 0; i < 70; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 1;
+            vote[1] = 2;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 30; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 1;
+            vote[1] = 3;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 40; i++) {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 2;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 60; i++) {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 3;
+            rankVote.addVote(vote);
+        }
+
+        uint256[] memory winners = rankVote.exposed_finalize(2);
+        assertEq(winners.length, 2);
+        assertEq(winners[0], 1);
+        assertEq(winners[1], 3);
+    }
+
+    /// @dev These numbers were spec'd so that 3 and 4 start tied,
+    ///      then after 1 wins, distributing 1's votes will give 
+    ///      4 more votes, but then 2 wins next and after distributing 
+    ///      2's votes we have another tie between 3 and 4.
+    function test_finalizeWinnerTiebreakUsingLastTally() public {
+        for (uint256 i = 0; i < 40; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 1;
+            vote[1] = 3;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 60; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 1;
+            vote[1] = 4;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 52; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 2;
+            vote[1] = 3;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 28; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 2;
+            vote[1] = 4;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 10; i++) {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 3;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 10; i++) {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 4;
+            rankVote.addVote(vote);
+        }
+
+        uint256[] memory winners = rankVote.exposed_finalize(3);
+        assertEq(winners.length, 3);
+        assertEq(winners[0], 1);
+        assertEq(winners[1], 2);
+        assertEq(winners[2], 4);
+    }
+
+    /// @dev These numbers were spec'd so 3 has more first place votes than two, but after 1 wins and its votes are distributed, there is a tie in which 
+    ///      then after 1 wins, distributing 1's votes will give 
+    ///      4 more votes, but then 2 wins next and after distributing 
+    ///      2's votes we have another tie between 3 and 4.
+    function test_finalizeLoserTiebreakUsingFirstTally() public {
+        rankVote = new RankVoteHarness(3);
+
+        for (uint256 i = 0; i < 6; i++) {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 1;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 3; i++) {
+            uint[] memory vote = new uint[](3);
+            vote[0] = 1;
+            vote[1] = 2;
+            vote[2] = 3;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 1; i++) {
+            uint[] memory vote = new uint[](3);
+            vote[0] = 1;
+            vote[1] = 3;
+            vote[2] = 2;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 4; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 2;
+            vote[1] = 3;
+            rankVote.addVote(vote);
+        }
+
+        for (uint256 i = 0; i < 6; i++) {
+            uint[] memory vote = new uint[](2);
+            vote[0] = 3;
+            vote[1] = 2;
+            rankVote.addVote(vote);
+        }
+
+        uint256[] memory winners = rankVote.exposed_finalize(2);
+        assertEq(winners.length, 2);
+        assertEq(winners[0], 1);
+        assertEq(winners[1], 3);
+    }
+
+    function test_finalizeThreeWayTieInFirstTally() public {
+        {
+            uint[] memory vote = new uint[](3);
+            vote[0] = 1;
+            vote[1] = 2;
+            vote[2] = 3;
+
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+        }
+
+        {
+            uint[] memory vote = new uint[](3);
+            vote[0] = 2;
+            vote[1] = 3;
+            vote[2] = 1;
+
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+        }
+
+        {
+            uint[] memory vote = new uint[](3);
+            vote[0] = 3;
+            vote[1] = 1;
+            vote[2] = 2;
+
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+            rankVote.addVote(vote);
+        }
+
+        uint256[] memory winners = rankVote.exposed_finalize(2);
+        assertEq(winners.length, 2);
+        assertEq(winners[0], 1);
+        assertEq(winners[1], 2);
+
     }
 }
+
