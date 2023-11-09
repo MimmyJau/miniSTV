@@ -171,7 +171,6 @@ contract TestRankVote is Test {
 
     }
 
-
     function test_AddMultipleVotes() public {
         addTestVotes();
 
@@ -631,53 +630,44 @@ contract TestRankVote is Test {
         assertEq(winners[2], 4);
     }
 
-    /// @dev These numbers were spec'd so 3 has more first place votes than two, but after 1 wins and its votes are distributed, there is a tie in which 
-    ///      then after 1 wins, distributing 1's votes will give 
-    ///      4 more votes, but then 2 wins next and after distributing 
-    ///      2's votes we have another tie between 3 and 4.
+    /// @dev These numbers were spec'd so 3 has more first place votes than 4, 
+    ///      but after 1 and 2 win and their votes are distributed, there is a 
+    ///      tie between 3 and 4. 4 wins the tiebreak and 3's votes transferred.
     function test_finalizeLoserTiebreakUsingFirstTally() public {
-        rankVote = new RankVoteHarness(3);
-
-        for (uint256 i = 0; i < 6; i++) {
-            uint[] memory vote = new uint[](1);
-            vote[0] = 1;
-            rankVote.addVote(vote);
-        }
-
-        for (uint256 i = 0; i < 3; i++) {
-            uint[] memory vote = new uint[](3);
+        {
+            uint[] memory vote = new uint[](4);
             vote[0] = 1;
             vote[1] = 2;
             vote[2] = 3;
-            rankVote.addVote(vote);
+            vote[3] = 4;
+            for (uint256 i = 0; i < 6; i++) {
+                rankVote.addVote(vote);
+            }
         }
 
-        for (uint256 i = 0; i < 1; i++) {
-            uint[] memory vote = new uint[](3);
+        {
+            uint[] memory vote = new uint[](4);
             vote[0] = 1;
-            vote[1] = 3;
-            vote[2] = 2;
-            rankVote.addVote(vote);
-        }
-
-        for (uint256 i = 0; i < 4; i++) {
-            uint[] memory vote = new uint[](2);
-            vote[0] = 2;
-            vote[1] = 3;
-            rankVote.addVote(vote);
-        }
-
-        for (uint256 i = 0; i < 6; i++) {
-            uint[] memory vote = new uint[](2);
-            vote[0] = 3;
             vote[1] = 2;
+            vote[2] = 4;
+            vote[3] = 3;
+            for (uint256 i = 0; i < 3; i++) {
+                rankVote.addVote(vote);
+            }
+        }
+
+        {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 4;
             rankVote.addVote(vote);
         }
 
-        uint256[] memory winners = rankVote.exposed_finalize(2);
-        assertEq(winners.length, 2);
+
+        uint256[] memory winners = rankVote.exposed_finalize(3);
+        assertEq(winners.length, 3);
         assertEq(winners[0], 1);
-        assertEq(winners[1], 3);
+        assertEq(winners[1], 2);
+        assertEq(winners[2], 4);
     }
 
     function test_finalizeThreeWayTieInFirstTally() public {
