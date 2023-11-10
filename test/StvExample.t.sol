@@ -209,6 +209,53 @@ contract Suffrage is Test {
     }
 }
 
+
+contract Start is Test {
+    StvExample public stvE;
+    address alice;
+
+    function setUp() public {
+        stvE = new StvExample();
+
+        alice = address(bytes20(keccak256(abi.encode("alice"))));
+
+        stvE.suffrage(alice);
+    }
+
+    function test_start() public {
+        bytes[] memory proposals_ = new bytes[](1);
+        proposals_[0] = "apple";
+
+        stvE.addProposals(proposals_);
+
+        stvE.start();
+    }
+
+    function testFail_startDisabledIfNoProposoals() public {
+        stvE.start();
+    }
+
+    function testFail_startCanOnlyBeCalledOnce() public {
+        bytes[] memory proposals_ = new bytes[](1);
+        proposals_[0] = "apple";
+
+        stvE.addProposals(proposals_);
+
+        stvE.start();
+        stvE.start();
+    }
+
+    function testFail_startCanOnlyBeCalledByAuthorizedUserk() public {
+        bytes[] memory proposals_ = new bytes[](1);
+        proposals_[0] = "apple";
+
+        stvE.addProposals(proposals_);
+
+        vm.prank(alice);
+        stvE.start();
+    }
+}
+
 contract Vote is Test {
     StvExample public stvE;
     address alice;
