@@ -28,11 +28,11 @@ contract StvExample {
     /// @param proposals_ List of proposals in bytes
     function addProposals(bytes[] calldata proposals_) external {
         require(msg.sender == chairperson);
+        require(!_active);
 
         for (uint256 i = 0; i < proposals_.length; i++) {
             proposals.push(proposals_[i]);
         }
-
     }
 
     /// @notice Get the total number of proposals
@@ -46,7 +46,6 @@ contract StvExample {
         require(msg.sender == chairperson);
         require(!_voters[aspiringVoter].voted);
         require(_voters[aspiringVoter].weight == 0);
-        require(_active);
 
         _voters[aspiringVoter].weight = 1;
     }
