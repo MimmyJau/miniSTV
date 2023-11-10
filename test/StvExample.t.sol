@@ -8,9 +8,14 @@ import "forge-std/console.sol";
 
 contract AddProposal is Test {
     StvExample public stvE;
+    address alice;
 
     function setUp() public {
         stvE = new StvExample();
+
+        alice = address(bytes20(keccak256(abi.encode("alice"))));
+
+        stvE.suffrage(alice);
     }
 
     function test_addOneProposal() public {
@@ -70,6 +75,36 @@ contract AddProposal is Test {
         stvE.addProposals(proposals_);
 
         assertEq(stvE.proposals(0), "");
+    }
+
+    function testFail_addProposalsAfterVotingStarts() public {
+        bytes[] memory proposals_ = new bytes[](4);
+        proposals_[0] = "apple";
+        proposals_[1] = "orange";
+        proposals_[2] = "banana";
+        proposals_[3] = "mango";
+
+        stvE.addProposals(proposals_);
+
+        stvE.start();
+
+        proposals_[0] = "grapefruit";
+        proposals_[1] = "kiwi";
+        proposals_[2] = "blueberry";
+        proposals_[3] = "watermelon";
+
+        stvE.addProposals(proposals_);
+    }
+
+    function testFail_addProposalByUnauthorizedUser() public {
+        bytes[] memory proposals_ = new bytes[](4);
+        proposals_[0] = "apple";
+        proposals_[1] = "orange";
+        proposals_[2] = "banana";
+        proposals_[3] = "mango";
+
+        vm.prank(alice);
+        stvE.addProposals(proposals_);
     }
 }
 
