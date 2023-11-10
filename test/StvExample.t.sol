@@ -9,9 +9,11 @@ import "forge-std/console.sol";
 contract AddProposal is Test {
     StvExample public stvE;
 
-    function test_addOneProposal() public {
+    function setUp() public {
         stvE = new StvExample();
+    }
 
+    function test_addOneProposal() public {
         bytes[] memory proposals_ = new bytes[](1);
         proposals_[0] = "apple";
 
@@ -21,8 +23,6 @@ contract AddProposal is Test {
     }
 
     function test_addFourProposals() public {
-        stvE = new StvExample();
-
         bytes[] memory proposals_ = new bytes[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
@@ -37,9 +37,33 @@ contract AddProposal is Test {
         assertEq(stvE.proposals(4), "mango");
     }
 
-    function test_addEmptyProposal() public {
-        stvE = new StvExample();
+    function test_addMoreProposalsToExistingProposals() public {
+        bytes[] memory proposals_ = new bytes[](4);
+        proposals_[0] = "apple";
+        proposals_[1] = "orange";
+        proposals_[2] = "banana";
+        proposals_[3] = "mango";
 
+        stvE.addProposals(proposals_);
+
+        proposals_[0] = "grapefruit";
+        proposals_[1] = "kiwi";
+        proposals_[2] = "blueberry";
+        proposals_[3] = "watermelon";
+
+        stvE.addProposals(proposals_);
+
+        assertEq(stvE.proposals(1), "apple");
+        assertEq(stvE.proposals(2), "orange");
+        assertEq(stvE.proposals(3), "banana");
+        assertEq(stvE.proposals(4), "mango");
+        assertEq(stvE.proposals(5), "grapefruit");
+        assertEq(stvE.proposals(6), "kiwi");
+        assertEq(stvE.proposals(7), "blueberry");
+        assertEq(stvE.proposals(8), "watermelon");
+    }
+    
+    function test_addEmptyProposal() public {
         bytes[] memory proposals_ = new bytes[](1);
         proposals_[0] = "";
 
