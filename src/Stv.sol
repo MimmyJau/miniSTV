@@ -230,7 +230,7 @@ contract Stv is RankVote {
     /// @param numWinners The ideal number of winners; algorithm will 
     ///        attempt to generate this number winners
     /// @return winners A list of winners
-    function finalize(uint256 numWinners) internal returns (uint256[] memory winners) {
+    function finalize(uint256 numWinners) public returns (uint256[] memory winners) {
 
         winners = new uint256[](numWinners);
         uint256 numWinners_ = 0;
