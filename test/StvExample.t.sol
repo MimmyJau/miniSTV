@@ -365,4 +365,59 @@ contract Vote is Test {
         stvE.vote(vote);
     }
 
+    function test_getVote() public {
+        // add alice's vote
+        uint256[] memory vote = new uint256[](3);
+        vote[0] = 4;
+        vote[1] = 2;
+        vote[2] = 1;
+
+        vm.prank(alice);
+        stvE.vote(vote);
+
+        // add bob's vote
+        vote[0] = 1;
+        vote[1] = 3;
+        vote[2] = 2;
+
+        vm.prank(bob);
+        stvE.vote(vote);
+
+        // get alice's vote
+        vm.prank(alice);
+        vote = stvE.getVote();
+
+        assertEq(vote.length, 3);
+        assertEq(vote[0], 4);
+        assertEq(vote[1], 2);
+        assertEq(vote[2], 1);
+
+        // get bob's vote
+        vm.prank(bob);
+        vote = stvE.getVote();
+
+        assertEq(vote.length, 3);
+        assertEq(vote[0], 1);
+        assertEq(vote[1], 3);
+        assertEq(vote[2], 2);
+
+    }
+
+    function test_getVoteBeforeVoting() public {
+        uint256[] memory vote = new uint256[](3);
+        
+        // get alice's vote
+        vm.prank(alice);
+        vote = stvE.getVote();
+
+        assertEq(vote.length, 0);
+
+        // get bob's vote
+        vm.prank(bob);
+        vote = stvE.getVote();
+
+        assertEq(vote.length, 0);
+
+    }
+
 }
