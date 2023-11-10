@@ -55,7 +55,7 @@ contract StvExample {
     /// @notice Opens voting, users cannot vote until this function is called
     function start() external {
         require(msg.sender == chairperson);
-        require(proposals.length > 0);
+        require(proposals.length - 1 > 0);
         require(!_active);
 
         stv = new Stv(proposals.length);
