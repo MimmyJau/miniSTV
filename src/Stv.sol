@@ -15,14 +15,16 @@ contract Stv is RankVote {
     constructor(uint256 numProposal) RankVote(numProposal) {}
 
     ////////////////////////////////////////////////////////////////////////
-    // Stv - Helper Functions
+    // Helper Functions
 
-    function eliminateProposal(uint proposal) public {
+    /// @dev Eliminates proposals from future tallies
+    /// @param proposal The proposal to be eliminated
+    function eliminateProposal(uint256 proposal) public {
         eliminatedProposals[proposal] = true;
     }
 
     /// @dev Returns a list of proposals that are still active. We need 
-    ///      to pass in as a param to maxSubset() when counting votes.
+    ///      to pass this in as a param to maxSubset() when counting votes.
     /// @return activeProposals A list of proposals that haven't been eliminated
     function getActiveProposals() internal view returns (uint256[] memory activeProposals) {
         uint256 countActiveProposals = 0;
@@ -48,7 +50,7 @@ contract Stv is RankVote {
     }
 
     ////////////////////////////////////////////////////////////////////////
-    // STV - Core Functions
+    // Core Functions
 
     /// @notice Calculates the droop quota, the minimum votes required for a proposal to "win"
     /// @return The droop quota as an integer
