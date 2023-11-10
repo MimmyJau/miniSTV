@@ -42,6 +42,8 @@ contract StvExample {
         return proposals.length - 1;
     }
 
+    /// @notice Give address the right to vote
+    /// @param aspiringVoter Address of the user being granted the right to vote
     function suffrage(address aspiringVoter) external {
         require(msg.sender == chairperson);
         require(!_voters[aspiringVoter].voted);
@@ -50,11 +52,14 @@ contract StvExample {
         _voters[aspiringVoter].weight = 1;
     }
 
+    /// @notice Opens voting, users cannot vote until this function is called
     function start() external {
         stv = new Stv(proposals.length);
         _active = true;
     }
 
+    /// @notice Submit a vote
+    /// @param vote_ A rank-order of votes
     function vote(uint256[] calldata vote_) external {
         require(_voters[msg.sender].weight > 0);
         require(!_voters[msg.sender].voted);
