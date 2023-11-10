@@ -21,14 +21,6 @@ contract Stv is RankVote {
         eliminatedProposals[proposal] = true;
     }
 
-    function getEliminatedProposals() private view returns (bool[] memory) {
-        bool[] memory eliminatedProposals_ = new bool[](numProposals + 1);
-        for (uint i = 1; i <= numProposals; i++) {
-            eliminatedProposals_[i] = eliminatedProposals[i];
-        }
-        return eliminatedProposals_;
-    }
-
     /// @dev Returns a list of proposals that are still active. We need 
     ///      to pass in as a param to maxSubset() when counting votes.
     /// @return activeProposals A list of proposals that haven't been eliminated
