@@ -20,6 +20,7 @@ contract StvExample {
     constructor() {
         chairperson = msg.sender;
         _voters[chairperson].weight = 1;
+        proposals.push(""); // Reserve index 0 spot.
     }
 
     /// @notice Add a list of proposals, only owner has permission
@@ -35,9 +36,10 @@ contract StvExample {
     }
 
     /// @notice Get the total number of proposals
+    /// @dev Subtract one because index 0 is always empty
     /// @return The total number of proposals
     function numProposals() external view returns (uint256) {
-        return proposals.length;
+        return proposals.length - 1;
     }
 
     function suffrage(address aspiringVoter) external {
