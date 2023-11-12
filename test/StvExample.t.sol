@@ -421,3 +421,133 @@ contract Vote is Test {
     }
 
 }
+
+contract End is Test {
+    StvExample public stvE;
+    address[] users;
+
+    function setUp() public {
+        stvE = new StvExample();
+
+        // proposals
+        bytes[] memory proposals_ = new bytes[](7);
+        proposals_[0] = "orange";
+        proposals_[1] = "pear";
+        proposals_[2] = "strawberry";
+        proposals_[3] = "cake";
+        proposals_[4] = "chocolate";
+        proposals_[5] = "burger";
+        proposals_[6] = "chicken";
+        stvE.addProposals(proposals_);
+
+        // address
+        for (uint256 i = 0; i < 23; i++) {
+            address a = address(bytes20(keccak256(abi.encode(i))));
+            stvE.suffrage(a);
+            users.push(a);
+        }
+
+        stvE.start();
+
+        // votes
+        uint256 iUser = 0;
+
+        {
+            uint256[] memory vote = new uint256[](2);
+            vote[0] = 1;
+            vote[1] = 2;
+
+            for (uint256 i = 0; i < 3; i++) {
+                address user_ = users[iUser++];
+                vm.prank(user_);
+                stvE.vote(vote);
+            }
+        }
+
+        {
+            uint256[] memory vote = new uint256[](3);
+            vote[0] = 2;
+            vote[1] = 3;
+            vote[2] = 4;
+
+            for (uint256 i = 0; i < 8; i++) {
+                address user_ = users[iUser++];
+                vm.prank(user_);
+                stvE.vote(vote);
+            }
+        }
+
+        {
+            uint256[] memory vote = new uint256[](3);
+            vote[0] = 3;
+            vote[1] = 1;
+            vote[2] = 2;
+
+            for (uint256 i = 0; i < 1; i++) {
+                address user_ = users[iUser++];
+                vm.prank(user_);
+                stvE.vote(vote);
+            }
+        }
+
+        {
+            uint256[] memory vote = new uint256[](2);
+            vote[0] = 4;
+            vote[1] = 5;
+
+            for (uint256 i = 0; i < 3; i++) {
+                address user_ = users[iUser++];
+                vm.prank(user_);
+                stvE.vote(vote);
+            }
+        }
+
+        {
+            uint256[] memory vote = new uint256[](3);
+            vote[0] = 5;
+            vote[1] = 4;
+            vote[2] = 6;
+
+            for (uint256 i = 0; i < 1; i++) {
+                address user_ = users[iUser++];
+                vm.prank(user_);
+                stvE.vote(vote);
+            }
+        }
+
+        {
+            uint256[] memory vote = new uint256[](2);
+            vote[0] = 6;
+            vote[1] = 7;
+
+            for (uint256 i = 0; i < 4; i++) {
+                address user_ = users[iUser++];
+                vm.prank(user_);
+                stvE.vote(vote);
+            }
+        }
+
+        {
+            uint256[] memory vote = new uint256[](3);
+            vote[0] = 7;
+            vote[1] = 5;
+            vote[2] = 6;
+
+            for (uint256 i = 0; i < 3; i++) {
+                address user_ = users[iUser++];
+                vm.prank(user_);
+                stvE.vote(vote);
+            }
+        }
+    }
+
+    function test_end() public {
+        uint256[] memory winners = stvE.end();
+        assertEq(winners.length, 3);
+        assertEq(winners[0], 2);
+        // console.log(winners[1]);
+        // console.log(winners[2]);
+        // assertEq(winners[1], 4);
+        // assertEq(winners[2], 6);
+    }
+}
