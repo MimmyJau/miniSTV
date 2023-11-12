@@ -58,7 +58,7 @@ contract StvExample {
         require(proposals.length - 1 > 0);
         require(!_active);
 
-        stv = new Stv(proposals.length);
+        stv = new Stv(proposals.length, 3);
         _active = true;
     }
 
@@ -85,11 +85,11 @@ contract StvExample {
         return _voters[msg.sender].votes;
     }
 
-    function end(uint256 numWinners) external returns (uint256[] memory winners_) {
+    function end() external returns (uint256[] memory winners_) {
         require(msg.sender == chairperson);
         require(_active);
 
-        winners_ = stv.finalize(numWinners);
+        winners_ = stv.finalize();
         for (uint256 i = 0; i < winners_.length; i++) {
             _winners.push(winners_[i]);
         }

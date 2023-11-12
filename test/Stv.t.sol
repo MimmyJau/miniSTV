@@ -6,7 +6,10 @@ import {Stv} from "../src/Stv.sol";
 import "forge-std/console.sol";
 
 contract StvHarness is Stv {
-    constructor(uint numProposals_) Stv(numProposals_) {}
+    constructor(
+        uint256 numProposals_, 
+        uint256 numWinners_
+    ) Stv(numProposals_, numWinners_) {}
 
     function exposed_getActiveProposals() external view returns (uint256[] memory activeProposals) {
         return getActiveProposals();
@@ -37,9 +40,8 @@ contract StvHarness is Stv {
     }
         
     function exposed_finalize(
-        uint256 numWinners
     ) external returns (uint256[] memory winners) {
-        return super.finalize(numWinners);
+        return super.finalize();
     }
 }
 
@@ -47,7 +49,7 @@ contract TestStv is Test {
     StvHarness public stvVote;
 
     function setUp() public {
-        stvVote = new StvHarness(4);
+        stvVote = new StvHarness(4, 3);
     }
 
     function addTestVotes() private {
@@ -214,7 +216,7 @@ contract TestStv is Test {
     function test_FinalizeNotEnoughWinners() public {
         addTestVotes();
 
-        uint256[] memory winners = stvVote.exposed_finalize(3);
+        uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 2);
         assertEq(winners[0], 1);
         assertEq(winners[1], 2);
@@ -232,7 +234,7 @@ contract TestStv is Test {
         vote12[0] = 2;
         stvVote.addVote(vote12);
 
-        uint256[] memory winners = stvVote.exposed_finalize(3);
+        uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 3);
         assertEq(winners[0], 1);
         assertEq(winners[1], 2);
@@ -261,7 +263,7 @@ contract TestStv is Test {
             stvVote.addVote(vote);
         }
 
-        uint256[] memory winners = stvVote.exposed_finalize(3);
+        uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 3);
         assertEq(winners[0], 1);
         assertEq(winners[1], 2);
@@ -411,7 +413,7 @@ contract TestStv is Test {
     /// @dev These numbers were spec'd so that after proposal 1 wins,
     ///      distributing its votes will cause a tie between 2 and 3.
     function test_finalizeWinnerTiebreakUsingFirstTally() public {
-        stvVote = new StvHarness(3);
+        stvVote = new StvHarness(3, 2);
 
         for (uint256 i = 0; i < 70; i++) {
             uint[] memory vote = new uint[](2);
@@ -439,7 +441,7 @@ contract TestStv is Test {
             stvVote.addVote(vote);
         }
 
-        uint256[] memory winners = stvVote.exposed_finalize(2);
+        uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 2);
         assertEq(winners[0], 1);
         assertEq(winners[1], 3);
@@ -490,7 +492,7 @@ contract TestStv is Test {
             stvVote.addVote(vote);
         }
 
-        uint256[] memory winners = stvVote.exposed_finalize(3);
+        uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 3);
         assertEq(winners[0], 1);
         assertEq(winners[1], 2);
@@ -530,7 +532,7 @@ contract TestStv is Test {
         }
 
 
-        uint256[] memory winners = stvVote.exposed_finalize(3);
+        uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 3);
         assertEq(winners[0], 1);
         assertEq(winners[1], 2);
@@ -580,7 +582,7 @@ contract TestStv is Test {
             }
         }
 
-        uint256[] memory winners = stvVote.exposed_finalize(3);
+        uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 3);
         assertEq(winners[0], 1);
         assertEq(winners[1], 2);
@@ -589,6 +591,8 @@ contract TestStv is Test {
     }
 
     function test_finalizeThreeWayTieInFirstTally() public {
+        stvVote = new StvHarness(4, 2);
+
         {
             uint[] memory vote = new uint[](3);
             vote[0] = 1;
@@ -628,7 +632,7 @@ contract TestStv is Test {
             stvVote.addVote(vote);
         }
 
-        uint256[] memory winners = stvVote.exposed_finalize(2);
+        uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 2);
         assertEq(winners[0], 1);
         assertEq(winners[1], 2);

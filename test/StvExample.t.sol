@@ -175,7 +175,7 @@ contract Suffrage is Test {
     function testFail_votingWithSuffrageAfterEnd() public {
         stvE.suffrage(testAddr);
         stvE.start();
-        stvE.end(1);
+        stvE.end();
 
         uint256[] memory vote = new uint256[](3);
         vote[0] = 4;

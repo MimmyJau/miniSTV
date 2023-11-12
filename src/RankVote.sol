@@ -17,12 +17,10 @@ contract RankVote is Tree {
     using ArrayUtils for uint256[];
 
     bytes32 internal root;
-    uint256 internal numProposals;
     mapping(bytes32 => Node) internal tree; 
 
-    constructor(uint256 numProposals_) {
+    constructor() {
         root = super.getRoot();
-        numProposals = numProposals_;
     }
 
     function totalVotes() public view returns (uint) {

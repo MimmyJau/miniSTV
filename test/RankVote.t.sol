@@ -6,7 +6,7 @@ import {RankVote, Node} from "../src/RankVote.sol";
 import "forge-std/console.sol";
 
 contract RankVoteHarness is RankVote {
-    constructor(uint numProposals_) RankVote(numProposals_) {}
+    constructor() RankVote() {}
 
     function exposed_Tree(
         bytes32 node32
@@ -28,7 +28,7 @@ contract TestRankVote is Test {
     RankVoteHarness public rankVote;
 
     function setUp() public {
-        rankVote = new RankVoteHarness(4);
+        rankVote = new RankVoteHarness();
     }
 
     function test_AddVote() public {

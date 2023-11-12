@@ -11,8 +11,14 @@ contract Stv is RankVote {
     using ArrayUtils for uint256[];
 
     mapping(uint256 => bool) internal eliminatedProposals; 
+    uint256 public numProposals;
+    uint256 public numWinners;
+    uint256 public numRankings = 3;
 
-    constructor(uint256 numProposal) RankVote(numProposal) {}
+    constructor(uint256 numProposals_, uint256 numWinners_) RankVote() {
+        numProposals = numProposals_;
+        numWinners = numWinners_;
+    }
 
     ////////////////////////////////////////////////////////////////////////
     // Helper Functions
@@ -227,10 +233,8 @@ contract Stv is RankVote {
     ///      will be equal to argument `numWinners` passed in as a param. 
     ///      This is more likely to occur if there are a lot of proposals 
     ///      and very few votes. 
-    /// @param numWinners The ideal number of winners; algorithm will 
-    ///        attempt to generate this number winners
     /// @return winners A list of winners
-    function finalize(uint256 numWinners) public returns (uint256[] memory winners) {
+    function finalize() public returns (uint256[] memory winners) {
 
         winners = new uint256[](numWinners);
         uint256 numWinners_ = 0;
