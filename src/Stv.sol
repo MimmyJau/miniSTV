@@ -13,7 +13,6 @@ contract Stv is RankVote {
     mapping(uint256 => bool) internal eliminatedProposals; 
     uint256 public numProposals;
     uint256 public numWinners;
-    uint256 public numRankings = 3;
 
     constructor(uint256 numProposals_, uint256 numWinners_) RankVote() {
         numProposals = numProposals_;

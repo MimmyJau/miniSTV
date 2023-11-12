@@ -3,6 +3,9 @@ pragma solidity ^0.8.13;
 
 import {Stv} from "../src/Stv.sol";
 
+uint256 constant NUM_WINNERS = 3;
+uint256 constant NUM_RANKINGS = 3;
+
 struct Voter {
     bool voted;
     uint256 weight;
@@ -58,7 +61,7 @@ contract StvExample {
         require(proposals.length - 1 > 0);
         require(!_active);
 
-        stv = new Stv(proposals.length, 3);
+        stv = new Stv(proposals.length, NUM_WINNERS);
         _active = true;
     }
 
@@ -67,7 +70,7 @@ contract StvExample {
     function vote(uint256[] calldata vote_) external {
         require(_voters[msg.sender].weight > 0);
         require(!_voters[msg.sender].voted);
-        require(vote_.length <= 3);
+        require(vote_.length <= NUM_RANKINGS);
         require(_active);
 
         // add vote to vote tree
