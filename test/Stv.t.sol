@@ -225,14 +225,25 @@ contract TestStv is Test {
     function test_FinalizeEnoughWinners() public {
         addTestVotes();
 
-        uint[] memory vote11 = new uint[](2);
-        vote11[0] = 2;
-        vote11[1] = 4;
-        stvVote.addVote(vote11);
+        {
+            uint[] memory vote11 = new uint[](2);
+            vote11[0] = 2;
+            vote11[1] = 4;
+            stvVote.addVote(vote11);
 
-        uint[] memory vote12 = new uint[](1);
-        vote12[0] = 2;
-        stvVote.addVote(vote12);
+            uint[] memory vote12 = new uint[](1);
+            vote12[0] = 2;
+            stvVote.addVote(vote12);
+        }
+
+        {
+            uint[] memory vote = new uint[](1);
+            vote[0] = 1;
+            for (uint256 i = 0; i < 3; i++) {
+                stvVote.addVote(vote);
+            }
+
+        }
 
         uint256[] memory winners = stvVote.exposed_finalize();
         assertEq(winners.length, 3);
@@ -429,15 +440,17 @@ contract TestStv is Test {
             stvVote.addVote(vote);
         }
 
-        for (uint256 i = 0; i < 40; i++) {
-            uint[] memory vote = new uint[](1);
+        for (uint256 i = 0; i < 43; i++) {
+            uint[] memory vote = new uint[](2);
             vote[0] = 2;
+            vote[1] = 3;
             stvVote.addVote(vote);
         }
 
-        for (uint256 i = 0; i < 60; i++) {
-            uint[] memory vote = new uint[](1);
+        for (uint256 i = 0; i < 57; i++) {
+            uint[] memory vote = new uint[](2);
             vote[0] = 3;
+            vote[1] = 2;
             stvVote.addVote(vote);
         }
 
@@ -466,14 +479,14 @@ contract TestStv is Test {
             stvVote.addVote(vote);
         }
 
-        for (uint256 i = 0; i < 52; i++) {
+        for (uint256 i = 0; i < 53; i++) {
             uint[] memory vote = new uint[](2);
             vote[0] = 2;
             vote[1] = 3;
             stvVote.addVote(vote);
         }
 
-        for (uint256 i = 0; i < 28; i++) {
+        for (uint256 i = 0; i < 27; i++) {
             uint[] memory vote = new uint[](2);
             vote[0] = 2;
             vote[1] = 4;
@@ -481,14 +494,16 @@ contract TestStv is Test {
         }
 
         for (uint256 i = 0; i < 10; i++) {
-            uint[] memory vote = new uint[](1);
+            uint[] memory vote = new uint[](2);
             vote[0] = 3;
+            vote[1] = 4;
             stvVote.addVote(vote);
         }
 
         for (uint256 i = 0; i < 10; i++) {
-            uint[] memory vote = new uint[](1);
+            uint[] memory vote = new uint[](2);
             vote[0] = 4;
+            vote[1] = 3;
             stvVote.addVote(vote);
         }
 
