@@ -425,6 +425,7 @@ contract Vote is Test {
 contract End is Test {
     StvExample public stvE;
     address[] users;
+    address nonVotingUser;
 
     /// @dev This example vote is from wiki's STV page: https://archive.li/OGMBx
     function setUp() public {
@@ -446,6 +447,12 @@ contract End is Test {
             address a = address(bytes20(keccak256(abi.encode(i))));
             stvE.suffrage(a);
             users.push(a);
+        }
+
+        // grant suffrage to a user that doesn't vote
+        {
+            nonVotingUser = address(bytes20(keccak256(abi.encode("nonVotingUser"))));
+            stvE.suffrage(nonVotingUser);
         }
 
         stvE.start();
@@ -562,4 +569,34 @@ contract End is Test {
 
     }
 
+    function testFail_startAfterVotingEnds() public {
+        stvE.end();
+        stvE.start();
+    }
+
+    function testFail_addProposalAfterVotingEnds() public {
+        stvE.end();
+
+        bytes[] memory proposals_ = new bytes[](1);
+        proposals_[0] = "mango";
+        stvE.addProposals(proposals_);
+    }
+
+    function testFail_suffrageAfterVotingEnds() public {
+        stvE.end();
+        address testAddr = address(bytes20(keccak256(abi.encode("spongebob"))));
+        stvE.suffrage(testAddr);
+    }
+
+    function testFail_votingAfterVotingEnds() public {
+        stvE.end();
+
+        uint256[] memory vote = new uint256[](2);
+        vote[0] = 4;
+        vote[1] = 5;
+
+        vm.prank(nonVotingUser);
+        stvE.vote(vote);
+    }
 }
+

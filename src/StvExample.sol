@@ -16,6 +16,7 @@ contract StvExample {
     address public chairperson;
     bytes[] public proposals;
     bool private _active;
+    bool private _over;
     uint256[] private _winners;
     mapping(address => Voter) private _voters; 
     Stv stv;
@@ -32,6 +33,7 @@ contract StvExample {
     function addProposals(bytes[] calldata proposals_) external {
         require(msg.sender == chairperson);
         require(!_active);
+        require(!_over);
 
         for (uint256 i = 0; i < proposals_.length; i++) {
             proposals.push(proposals_[i]);
@@ -51,6 +53,7 @@ contract StvExample {
         require(msg.sender == chairperson);
         require(!_voters[aspiringVoter].voted);
         require(_voters[aspiringVoter].weight == 0);
+        require(!_over);
 
         _voters[aspiringVoter].weight = 1;
     }
@@ -60,6 +63,7 @@ contract StvExample {
         require(msg.sender == chairperson);
         require(numProposals() > 0);
         require(!_active);
+        require(!_over);
 
         stv = new Stv(numProposals(), NUM_WINNERS);
         _active = true;
@@ -72,6 +76,7 @@ contract StvExample {
         require(!_voters[msg.sender].voted);
         require(vote_.length <= NUM_RANKINGS);
         require(_active);
+        require(!_over);
 
         // add vote to vote tree
         stv.addVote(vote_);
@@ -88,6 +93,8 @@ contract StvExample {
         return _voters[msg.sender].votes;
     }
 
+    /// @notice Ends voting and tallies winners
+    /// @return winners_ List of winners
     function end() external returns (uint256[] memory winners_) {
         require(msg.sender == chairperson);
         require(_active);
@@ -98,6 +105,7 @@ contract StvExample {
         }
 
         _active = false;
+        _over = true;
 
         return winners_;
     }
@@ -116,5 +124,4 @@ contract StvExample {
 
         return winners_;
     }
-
 }
