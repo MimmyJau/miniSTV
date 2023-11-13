@@ -426,6 +426,7 @@ contract End is Test {
     StvExample public stvE;
     address[] users;
 
+    /// @dev This example vote is from wiki's STV page: https://archive.li/OGMBx
     function setUp() public {
         stvE = new StvExample();
 
