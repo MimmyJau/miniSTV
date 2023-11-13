@@ -41,7 +41,7 @@ contract StvExample {
     /// @notice Get the total number of proposals
     /// @dev Subtract one because index 0 is always empty
     /// @return The total number of proposals
-    function numProposals() external view returns (uint256) {
+    function numProposals() public view returns (uint256) {
         return proposals.length - 1;
     }
 
@@ -58,10 +58,10 @@ contract StvExample {
     /// @notice Opens voting, users cannot vote until this function is called
     function start() external {
         require(msg.sender == chairperson);
-        require(proposals.length - 1 > 0);
+        require(numProposals() > 0);
         require(!_active);
 
-        stv = new Stv(proposals.length, NUM_WINNERS);
+        stv = new Stv(numProposals(), NUM_WINNERS);
         _active = true;
     }
 
