@@ -40,6 +40,21 @@ contract StvExample {
         }
     }
 
+    /// @notice Get list of names of all proposals
+    /// @return proposalNames A list of all the proposal names. Will always have length
+    ///         numProposals() + 1, i.e. index 0 will be empty.
+    function getProposalNames() external view returns (bytes[] memory proposalNames) {
+        require(_voters[msg.sender].weight > 0);
+
+        proposalNames = new bytes[](proposals.length);
+
+        for (uint256 i = 0; i < proposals.length; i++) {
+            proposalNames[i] = proposals[i];
+        }
+
+        return proposalNames;
+    }
+
     /// @notice Get the total number of proposals
     /// @dev Subtract one because index 0 is always empty
     /// @return The total number of proposals

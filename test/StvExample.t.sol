@@ -106,6 +106,35 @@ contract AddProposal is Test {
         vm.prank(alice);
         stvE.addProposals(proposals_);
     }
+
+    function test_getProposalNames() public {
+        bytes[] memory proposals_ = new bytes[](4);
+        proposals_[0] = "apple";
+        proposals_[1] = "orange";
+        proposals_[2] = "banana";
+        proposals_[3] = "mango";
+
+        stvE.addProposals(proposals_);
+
+        proposals_[0] = "grapefruit";
+        proposals_[1] = "kiwi";
+        proposals_[2] = "blueberry";
+        proposals_[3] = "watermelon";
+
+        stvE.addProposals(proposals_);
+
+        bytes[] memory proposalName = stvE.getProposalNames();
+        assertEq(proposalName.length, 9);
+        assertEq(proposalName[1], "apple");
+        assertEq(proposalName[2], "orange");
+        assertEq(proposalName[3], "banana");
+        assertEq(proposalName[4], "mango");
+        assertEq(proposalName[5], "grapefruit");
+        assertEq(proposalName[6], "kiwi");
+        assertEq(proposalName[7], "blueberry");
+        assertEq(proposalName[8], "watermelon");
+
+    }
 }
 
 contract NumProposals is Test {
