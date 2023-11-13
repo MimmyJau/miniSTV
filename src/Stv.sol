@@ -164,6 +164,21 @@ contract Stv is RankVote {
         return tally;
     }
 
+    /// @notice WIP! This is a yet-to-be-implemented RNG for picking proposal to elect.
+    /// @dev As of now, it picks the first element in the list, biasing towards earlier proposals
+    /// @param proposals List of proposals from which you'd like to pick a random one
+    /// @return randomWinner The randomly-selected proposal to be elected
+    function randomWinner(uint256[] memory proposals) private pure returns (uint256 randomWinner) {
+        return proposals[0];
+    }
+
+    /// @notice WIP! This is a yet-to-be-implemented RNG for picking proposal to eliminate.
+    /// @dev As of now, it picks the last element in the list, biasing towards earlier proposals
+    /// @param proposals List of proposals from which you'd like to pick a random one
+    /// @return randomLoser The randomly-selected proposal to be eliminated
+    function randomLoser(uint256[] memory proposals) private pure returns (uint256 randomLoser) {
+        return proposals[proposals.length - 1];
+    }
     
     /// @dev Tiebreaker when >1 proposal surpasses quota
     /// @param firstTally The intiial tally. Shows who has the most first-rank votes.
@@ -175,7 +190,7 @@ contract Stv is RankVote {
         uint256[] memory lastTally, 
         uint256[] memory tiedProposals
     ) internal pure returns (uint256 winner) {
-        if (lastTally.length == 0) return tiedProposals[0];
+        if (lastTally.length == 0) return randomWinner(tiedProposals);
 
         // 1) who had the most 1st-rank votes
         uint256[] memory winners = firstTally.maxSubset(tiedProposals);
@@ -186,22 +201,10 @@ contract Stv is RankVote {
         // 2) who had most votes in last tally
         winners = lastTally.maxSubset(tiedProposals);
         if (winners.length == 1) {
-            return winner = winners[0];
+            return winners[0];
         } 
 
-
-        // 3) "random" TODO: implement actual RNG
-        winner = winners[0];
-
-        return winner;
-    }
-
-    /// @notice WIP! This is a yet-to-be-implemented RNG for picking proposal to eliminate.
-    /// @dev As of now, it picks the last element in the list, biasing towards earlier proposals
-    /// @param proposals List of proposals from which you'd like to pick a random one
-    /// @return randomLoser The randomly-selected proposal to be eliminated
-    function randomLoser(uint256[] memory proposals) private pure returns (uint256 randomLoser) {
-        return proposals[proposals.length - 1];
+        return randomWinner(winners);
     }
 
     /// @dev Tiebreaker when >1 proposal are eligible to be eliminated 
