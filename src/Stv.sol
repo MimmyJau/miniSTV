@@ -60,7 +60,7 @@ contract Stv is RankVote {
     /// @notice Calculates the droop quota, the minimum votes required for a proposal to "win"
     /// @return The droop quota as an integer
     function droopQuota() public view returns (uint256) {
-        return totalVotes() / (numProposals + 1) + 1;
+        return totalVotes() / (numWinners + 1) + 1;
     }
 
     /// @dev This function distributes a node's votes to all of its descendents
