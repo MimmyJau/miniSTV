@@ -167,16 +167,16 @@ contract Stv is RankVote {
     /// @notice WIP! This is a yet-to-be-implemented RNG for picking proposal to elect.
     /// @dev As of now, it picks the first element in the list, biasing towards earlier proposals
     /// @param proposals List of proposals from which you'd like to pick a random one
-    /// @return randomWinner The randomly-selected proposal to be elected
-    function randomWinner(uint256[] memory proposals) private pure returns (uint256 randomWinner) {
+    /// @return randomWinner_ The randomly-selected proposal to be elected
+    function randomWinner(uint256[] memory proposals) private pure returns (uint256 randomWinner_) {
         return proposals[0];
     }
 
     /// @notice WIP! This is a yet-to-be-implemented RNG for picking proposal to eliminate.
     /// @dev As of now, it picks the last element in the list, biasing towards earlier proposals
     /// @param proposals List of proposals from which you'd like to pick a random one
-    /// @return randomLoser The randomly-selected proposal to be eliminated
-    function randomLoser(uint256[] memory proposals) private pure returns (uint256 randomLoser) {
+    /// @return randomLoser_ The randomly-selected proposal to be eliminated
+    function randomLoser(uint256[] memory proposals) private pure returns (uint256 randomLoser_) {
         return proposals[proposals.length - 1];
     }
     
