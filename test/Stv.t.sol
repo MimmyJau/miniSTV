@@ -590,8 +590,10 @@ contract TestStv is Test {
 
     }
 
+    /// @dev These numbers were spec'd so there would be a 3-way tie that cannot
+    ///      be broken by a tiebreaker. 
     function test_finalizeThreeWayTieInFirstTally() public {
-        stvVote = new StvHarness(4, 2);
+        stvVote = new StvHarness(3, 2);
 
         {
             uint[] memory vote = new uint[](3);
