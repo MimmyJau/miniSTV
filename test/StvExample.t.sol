@@ -545,9 +545,7 @@ contract End is Test {
         uint256[] memory winners = stvE.end();
         assertEq(winners.length, 3);
         assertEq(winners[0], 2);
-        // console.log(winners[1]);
-        // console.log(winners[2]);
-        // assertEq(winners[1], 4);
-        // assertEq(winners[2], 6);
+        assertEq(winners[1], 4);
+        assertEq(winners[2], 6);
     }
 }

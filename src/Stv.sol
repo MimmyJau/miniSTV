@@ -257,7 +257,7 @@ contract Stv is RankVote {
             uint256 excessVotes;
 
             // if votes count crosses threshold, we'll pick a winner
-            if (count > quota) {
+            if (count >= quota) {
                 // if there's a tie, break tie
                 if (maxIndices.length > 1) {
                     proposal = tiebreakWinner(firstTally, lastTally, maxIndices);
@@ -271,7 +271,7 @@ contract Stv is RankVote {
 
             // if vote count doesn't cross threshold, eliminate
             else {
-                uint256[] memory minIndices = tally.minTally();
+                uint256[] memory minIndices = tally.minSubset(getActiveProposals());
                 proposal = minIndices[0];
 
                 if (minIndices.length > 1) {
