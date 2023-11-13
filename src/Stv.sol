@@ -196,6 +196,14 @@ contract Stv is RankVote {
         return winner;
     }
 
+    /// @notice WIP! This is a yet-to-be-implemented RNG for picking proposal to eliminate.
+    /// @dev As of now, it picks the last element in the list, biasing towards earlier proposals
+    /// @param proposals List of proposals from which you'd like to pick a random one
+    /// @return randomLoser The randomly-selected proposal to be eliminated
+    function randomLoser(uint256[] memory proposals) private pure returns (uint256 randomLoser) {
+        return proposals[proposals.length - 1];
+    }
+
     /// @dev Tiebreaker when >1 proposal are eligible to be eliminated 
     /// @param firstTally The intiial tally. Shows who has the least first-rank votes.
     /// @param lastTally The previous tally
@@ -206,7 +214,7 @@ contract Stv is RankVote {
         uint256[] memory lastTally, 
         uint256[] memory tiedProposals
     ) internal pure returns (uint256 loser) {
-        if (lastTally.length == 0) return tiedProposals[0];
+        if (lastTally.length == 0) return randomLoser(tiedProposals);
 
         // 1) who had the least 1st-rank votes
         uint256[] memory losers = firstTally.minSubset(tiedProposals);
@@ -217,13 +225,10 @@ contract Stv is RankVote {
         // 2) who had least votes in last tally
         losers = lastTally.minSubset(tiedProposals);
         if (losers.length == 1) {
-            loser = losers[0];
+            return losers[0];
         } 
 
-        // 3) "random" TODO: implement actual RNG
-        loser = losers[0];
-
-        return loser;
+        return randomLoser(losers);
     }
 
     /// @notice Determine winners of the STV vote
