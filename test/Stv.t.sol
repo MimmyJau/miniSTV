@@ -49,10 +49,13 @@ contract TestStv is Test {
     StvHarness public stvVote;
 
     function setUp() public {
-        stvVote = new StvHarness(4, 3);
     }
 
     function addTestVotes() private {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         uint[] memory vote = new uint[](3);
         vote[0] = 1;
         vote[1] = 2;
@@ -110,6 +113,10 @@ contract TestStv is Test {
     }
 
     function test_GetActiveProposals() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         addTestVotes();
 
         uint256[] memory activeProposals = stvVote.exposed_getActiveProposals();
@@ -129,6 +136,10 @@ contract TestStv is Test {
     }
 
     function test_tallyVotes() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         addTestVotes();
         
         uint[] memory tally = stvVote.tallyVotes();
@@ -168,6 +179,10 @@ contract TestStv is Test {
     }
 
     function test_TotalVotes() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         addTestVotes();
 
         uint totalVotes = stvVote.totalVotes();
@@ -175,6 +190,10 @@ contract TestStv is Test {
     }
 
     function test_DroopQuota() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         addTestVotes();
 
         uint quota = stvVote.droopQuota();
@@ -182,6 +201,10 @@ contract TestStv is Test {
     }
 
     function test_DistributeVotes() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         addTestVotes();
 
         uint[] memory tally = stvVote.tallyVotes();
@@ -214,6 +237,10 @@ contract TestStv is Test {
     }
 
     function test_FinalizeNotEnoughWinners() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         addTestVotes();
 
         uint256[] memory winners = stvVote.exposed_finalize();
@@ -223,6 +250,10 @@ contract TestStv is Test {
     }
 
     function test_FinalizeEnoughWinners() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         addTestVotes();
 
         {
@@ -253,6 +284,10 @@ contract TestStv is Test {
     }
 
     function test_FinalizeEnoughWinnersMany() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         for (uint256 i = 0; i < 1000; i++) {
             uint[] memory vote = new uint[](1);
             vote[0] = 1;
@@ -283,6 +318,10 @@ contract TestStv is Test {
 
     // Unit test
     function test_tiebreakWinnerByFirstTally() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         uint256[] memory firstTally = new uint256[](11);
         firstTally[1] = 119;
         firstTally[2] = 96;
@@ -318,6 +357,10 @@ contract TestStv is Test {
 
     // Unit test
     function test_tiebreakWinnerByLastTally() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         uint256[] memory firstTally = new uint256[](11);
         firstTally[1] = 119;
         firstTally[2] = 96;
@@ -353,6 +396,10 @@ contract TestStv is Test {
 
     // Unit test
     function test_tiebreakLoserByFirstTally() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         uint256[] memory firstTally = new uint256[](11);
         firstTally[1] = 119;
         firstTally[2] = 96;
@@ -388,6 +435,10 @@ contract TestStv is Test {
 
     // Unit test
     function test_tiebreakLoserByLastTally() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         uint256[] memory firstTally = new uint256[](11);
         firstTally[1] = 119;
         firstTally[2] = 96;
@@ -424,7 +475,9 @@ contract TestStv is Test {
     /// @dev These numbers were spec'd so that after proposal 1 wins,
     ///      distributing its votes will cause a tie between 2 and 3.
     function test_finalizeWinnerTiebreakUsingFirstTally() public {
-        stvVote = new StvHarness(3, 2);
+        uint256 numProposals = 3;
+        uint256 numWinners = 2;
+        stvVote = new StvHarness(numProposals, numWinners);
 
         for (uint256 i = 0; i < 70; i++) {
             uint[] memory vote = new uint[](2);
@@ -465,6 +518,10 @@ contract TestStv is Test {
     ///      4 more votes, but then 2 wins next and after distributing 
     ///      2's votes we have another tie between 3 and 4.
     function test_finalizeWinnerTiebreakUsingLastTally() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         for (uint256 i = 0; i < 40; i++) {
             uint[] memory vote = new uint[](2);
             vote[0] = 1;
@@ -518,6 +575,10 @@ contract TestStv is Test {
     ///      but after 1 and 2 win and their votes are distributed, there is a 
     ///      tie between 3 and 4. 4 wins the tiebreak and 3's votes transferred.
     function test_finalizeLoserTiebreakUsingFirstTally() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+
         {
             uint[] memory vote = new uint[](4);
             vote[0] = 1;
@@ -558,6 +619,10 @@ contract TestStv is Test {
     ///      but after 1 wins and its votes are distributed, 4 has more votes than 3, 
     ///      but after 2 wins and its votes are distributed, there is another tie.
     function test_finalizeLoserTiebreakUsingLastTally() public {
+        uint256 numProposals = 4;
+        uint256 numWinners = 3;
+        stvVote = new StvHarness(numProposals, numWinners);
+        
         {
             uint[] memory vote = new uint[](4);
             vote[0] = 1;
@@ -608,7 +673,9 @@ contract TestStv is Test {
     /// @dev These numbers were spec'd so there would be a 3-way tie that cannot
     ///      be broken by a tiebreaker. 
     function test_finalizeThreeWayTieInFirstTally() public {
-        stvVote = new StvHarness(3, 2);
+        uint256 numProposals = 3;
+        uint256 numWinners = 2;
+        stvVote = new StvHarness(numProposals, numWinners);
 
         {
             uint[] memory vote = new uint[](3);
@@ -656,4 +723,3 @@ contract TestStv is Test {
 
     }
 }
-
