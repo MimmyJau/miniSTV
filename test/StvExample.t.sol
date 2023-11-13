@@ -549,4 +549,17 @@ contract End is Test {
         assertEq(winners[1], 4);
         assertEq(winners[2], 6);
     }
+
+    function test_getWinners() public {
+        stvE.end();
+
+        uint256[] memory winners = stvE.winners();
+
+        assertEq(winners.length, 3);
+        assertEq(winners[0], 2);
+        assertEq(winners[1], 4);
+        assertEq(winners[2], 6);
+
+    }
+
 }

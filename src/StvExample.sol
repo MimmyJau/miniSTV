@@ -102,8 +102,13 @@ contract StvExample {
         return winners_;
     }
 
+    /// @notice Returns a list of winning proposals
+    /// @dev Cannot be called until voting is over
+    /// @return winners_ List of winning proposals
     function winners() external view returns (uint256[] memory winners_) {
         require(!_active);
+
+        winners_ = new uint256[](_winners.length);
 
         for (uint256 i = 0; i < _winners.length; i++) {
             winners_[i] = _winners[i];
