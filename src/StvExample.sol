@@ -89,6 +89,8 @@ contract StvExample {
         _voters[msg.sender].voted = true;
     }
 
+    /// @notice Retrieve user's vote, will return empty list if sender hasn't voted
+    /// @return votes List of sender's vote ranking
     function getVote() external view returns (uint256[] memory votes) {
         return _voters[msg.sender].votes;
     }
