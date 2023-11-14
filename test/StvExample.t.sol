@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {StvExample} from "../src/StvExample.sol";
+import {StvExample} from "../src/examples/StvExample.sol";
 
 import "forge-std/console.sol";
 
