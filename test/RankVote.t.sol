@@ -22,6 +22,10 @@ contract RankVoteHarness is RankVote {
         );
     }
 
+    function exposed_totalVotes() external view returns(uint256 voteCount) {
+        return totalVotes();
+    }
+
 }
 
 contract TestRankVote is Test {
@@ -131,6 +135,13 @@ contract TestRankVote is Test {
         vote10[0] = 2;
         rankVote.addVote(vote10);
 
+    }
+
+    function test_TotalVotes() public {
+        addTestVotes();
+
+        uint totalVotes = rankVote.exposed_totalVotes();
+        assertEq(totalVotes, 10);
     }
 
     function test_AddMultipleVotes() public {

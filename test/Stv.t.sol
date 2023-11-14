@@ -178,17 +178,6 @@ contract TestStv is Test {
         assertEq(tally[4], 0);
     }
 
-    function test_TotalVotes() public {
-        uint256 numProposals = 4;
-        uint256 numWinners = 3;
-        stvVote = new StvHarness(numProposals, numWinners);
-
-        addTestVotes();
-
-        uint totalVotes = stvVote.totalVotes();
-        assertEq(totalVotes, 10);
-    }
-
     function test_DroopQuota() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
