@@ -11,8 +11,28 @@ contract StvHarness is Stv {
         uint256 numWinners_
     ) Stv(numProposals_, numWinners_) {}
 
+    function exposed_eliminateProposal(uint256 proposal) external {
+        return eliminateProposal(proposal);
+    }
+
     function exposed_getActiveProposals() external view returns (uint256[] memory activeProposals) {
         return getActiveProposals();
+    }
+
+    function exposed_droopQuota() external view returns (uint256) {
+        return droopQuota();
+    }
+
+    function exposed_distributeVotes(
+        uint256[] memory tally, 
+        uint256 dProposal,
+        uint256 excessVotes
+    ) external returns (uint[] memory) {
+        return distributeVotes(tally, dProposal, excessVotes);
+    }
+
+    function exposed_tallyVotes() external view returns (uint[] memory tally) {
+        return tallyVotes();
     }
 
     function exposed_tiebreakWinner(
@@ -126,7 +146,7 @@ contract TestStv is Test {
         assertEq(activeProposals[2], 3);
         assertEq(activeProposals[3], 4);
 
-        stvVote.eliminateProposal(1);
+        stvVote.exposed_eliminateProposal(1);
 
         activeProposals = stvVote.exposed_getActiveProposals();
         assertEq(activeProposals.length, 3);
@@ -135,14 +155,14 @@ contract TestStv is Test {
         assertEq(activeProposals[2], 4);
     }
 
-    function test_tallyVotes() public {
+    function test_exposed_tallyVotes() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
 
         addTestVotes();
         
-        uint[] memory tally = stvVote.tallyVotes();
+        uint[] memory tally = stvVote.exposed_tallyVotes();
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 9);
@@ -150,8 +170,8 @@ contract TestStv is Test {
         assertEq(tally[3], 0);
         assertEq(tally[4], 0);
 
-        stvVote.eliminateProposal(1);
-        tally = stvVote.tallyVotes();
+        stvVote.exposed_eliminateProposal(1);
+        tally = stvVote.exposed_tallyVotes();
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 0);
@@ -159,8 +179,8 @@ contract TestStv is Test {
         assertEq(tally[3], 1);
         assertEq(tally[4], 3);
 
-        stvVote.eliminateProposal(2);
-        tally = stvVote.tallyVotes();
+        stvVote.exposed_eliminateProposal(2);
+        tally = stvVote.exposed_tallyVotes();
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 0);
@@ -168,8 +188,8 @@ contract TestStv is Test {
         assertEq(tally[3], 2);
         assertEq(tally[4], 4);
 
-        stvVote.eliminateProposal(4);
-        tally = stvVote.tallyVotes();
+        stvVote.exposed_eliminateProposal(4);
+        tally = stvVote.exposed_tallyVotes();
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 0);
@@ -185,7 +205,7 @@ contract TestStv is Test {
 
         addTestVotes();
 
-        uint quota = stvVote.droopQuota();
+        uint quota = stvVote.exposed_droopQuota();
         assertEq(quota, 3);
     }
 
@@ -196,7 +216,7 @@ contract TestStv is Test {
 
         addTestVotes();
 
-        uint[] memory tally = stvVote.tallyVotes();
+        uint[] memory tally = stvVote.exposed_tallyVotes();
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 9);
@@ -204,9 +224,9 @@ contract TestStv is Test {
         assertEq(tally[3], 0);
         assertEq(tally[4], 0);
 
-        stvVote.eliminateProposal(1);
-        uint256 excessVotes = tally[1] - stvVote.droopQuota();
-        tally = stvVote.distributeVotes(tally, 1, excessVotes);
+        stvVote.exposed_eliminateProposal(1);
+        uint256 excessVotes = tally[1] - stvVote.exposed_droopQuota();
+        tally = stvVote.exposed_distributeVotes(tally, 1, excessVotes);
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 9);
@@ -214,9 +234,9 @@ contract TestStv is Test {
         assertEq(tally[3], 0);
         assertEq(tally[4], 2);
 
-        stvVote.eliminateProposal(2);
-        excessVotes = tally[2] - stvVote.droopQuota();
-        tally = stvVote.distributeVotes(tally, 2, excessVotes);
+        stvVote.exposed_eliminateProposal(2);
+        excessVotes = tally[2] - stvVote.exposed_droopQuota();
+        tally = stvVote.exposed_distributeVotes(tally, 2, excessVotes);
         assertEq(tally.length, 5);
         assertEq(tally[0], 0);
         assertEq(tally[1], 9);

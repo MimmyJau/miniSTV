@@ -24,7 +24,7 @@ contract Stv is RankVote {
 
     /// @dev Eliminates proposals from future tallies
     /// @param proposal The proposal to be eliminated
-    function eliminateProposal(uint256 proposal) public {
+    function eliminateProposal(uint256 proposal) internal {
         eliminatedProposals[proposal] = true;
     }
 
@@ -59,7 +59,7 @@ contract Stv is RankVote {
 
     /// @notice Calculates the droop quota, the minimum votes required for a proposal to "win"
     /// @return The droop quota as an integer
-    function droopQuota() public view returns (uint256) {
+    function droopQuota() internal view returns (uint256) {
         return totalVotes() / (numWinners + 1) + 1;
     }
 
@@ -132,7 +132,7 @@ contract Stv is RankVote {
         uint256[] memory tally, 
         uint256 dProposal,
         uint256 excessVotes
-    ) public returns (uint[] memory) {
+    ) internal returns (uint[] memory) {
 
         // index 0 is not used in proposals
         uint256[] memory dTally = new uint256[](numProposals + 1);
@@ -154,7 +154,7 @@ contract Stv is RankVote {
     /// @notice Entrypoint for tallying votes
     /// @dev Calls tallyDescendents to traverse tree and count votes
     /// @return tally An array with the vote count of each proposal
-    function tallyVotes() public view returns (uint[] memory tally) {
+    function tallyVotes() internal view returns (uint[] memory tally) {
         // index 0 is not used in proposals
         tally = new uint256[](numProposals + 1);
 
