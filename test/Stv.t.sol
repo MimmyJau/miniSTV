@@ -155,7 +155,7 @@ contract TestStv is Test {
         assertEq(activeProposals[2], 4);
     }
 
-    function test_exposed_tallyVotes() public {
+    function test_TallyVotes() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -326,7 +326,7 @@ contract TestStv is Test {
     }
 
     // Unit test
-    function test_tiebreakWinnerByFirstTally() public {
+    function test_TiebreakWinnerByFirstTally() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -365,7 +365,7 @@ contract TestStv is Test {
     }
 
     // Unit test
-    function test_tiebreakWinnerByLastTally() public {
+    function test_TiebreakWinnerByLastTally() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -404,7 +404,7 @@ contract TestStv is Test {
     }
 
     // Unit test
-    function test_tiebreakLoserByFirstTally() public {
+    function test_TiebreakLoserByFirstTally() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -443,7 +443,7 @@ contract TestStv is Test {
     }
 
     // Unit test
-    function test_tiebreakLoserByLastTally() public {
+    function test_TiebreakLoserByLastTally() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -483,7 +483,7 @@ contract TestStv is Test {
 
     /// @dev These numbers were spec'd so that after proposal 1 wins,
     ///      distributing its votes will cause a tie between 2 and 3.
-    function test_finalizeWinnerTiebreakUsingFirstTally() public {
+    function test_FinalizeWinnerTiebreakUsingFirstTally() public {
         uint256 numProposals = 3;
         uint256 numWinners = 2;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -526,7 +526,7 @@ contract TestStv is Test {
     ///      then after 1 wins, distributing 1's votes will give 
     ///      4 more votes, but then 2 wins next and after distributing 
     ///      2's votes we have another tie between 3 and 4.
-    function test_finalizeWinnerTiebreakUsingLastTally() public {
+    function test_FinalizeWinnerTiebreakUsingLastTally() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -583,7 +583,7 @@ contract TestStv is Test {
     /// @dev These numbers were spec'd so 3 has more first place votes than 4, 
     ///      but after 1 and 2 win and their votes are distributed, there is a 
     ///      tie between 3 and 4. 4 wins the tiebreak and 3's votes transferred.
-    function test_finalizeLoserTiebreakUsingFirstTally() public {
+    function test_FinalizeLoserTiebreakUsingFirstTally() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -627,7 +627,7 @@ contract TestStv is Test {
     /// @dev These numbers were spec'd so both 3 and 4 have no first-rank votes,
     ///      but after 1 wins and its votes are distributed, 4 has more votes than 3, 
     ///      but after 2 wins and its votes are distributed, there is another tie.
-    function test_finalizeLoserTiebreakUsingLastTally() public {
+    function test_FinalizeLoserTiebreakUsingLastTally() public {
         uint256 numProposals = 4;
         uint256 numWinners = 3;
         stvVote = new StvHarness(numProposals, numWinners);
@@ -681,7 +681,7 @@ contract TestStv is Test {
 
     /// @dev These numbers were spec'd so there would be a 3-way tie that cannot
     ///      be broken by a tiebreaker. 
-    function test_finalizeThreeWayTieInFirstTally() public {
+    function test_FinalizeThreeWayTieInFirstTally() public {
         uint256 numProposals = 3;
         uint256 numWinners = 2;
         stvVote = new StvHarness(numProposals, numWinners);

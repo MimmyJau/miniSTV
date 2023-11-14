@@ -18,7 +18,7 @@ contract AddProposal is Test {
         stvE.suffrage(alice);
     }
 
-    function test_addOneProposal() public {
+    function test_AddOneProposal() public {
         string[] memory proposals_ = new string[](1);
         proposals_[0] = "apple";
 
@@ -27,7 +27,7 @@ contract AddProposal is Test {
         assertEq(stvE.proposals(1), "apple");
     }
 
-    function test_addFourProposals() public {
+    function test_AddFourProposals() public {
         string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
@@ -42,7 +42,7 @@ contract AddProposal is Test {
         assertEq(stvE.proposals(4), "mango");
     }
 
-    function test_addMoreProposalsToExistingProposals() public {
+    function test_AddMoreProposalsToExistingProposals() public {
         string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
@@ -68,7 +68,7 @@ contract AddProposal is Test {
         assertEq(stvE.proposals(8), "watermelon");
     }
     
-    function test_addEmptyProposal() public {
+    function test_AddEmptyProposal() public {
         string[] memory proposals_ = new string[](1);
         proposals_[0] = "";
 
@@ -77,7 +77,7 @@ contract AddProposal is Test {
         assertEq(stvE.proposals(0), "");
     }
 
-    function testFail_addProposalsAfterVotingStarts() public {
+    function testFail_AddProposalsAfterVotingStarts() public {
         string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
@@ -96,7 +96,7 @@ contract AddProposal is Test {
         stvE.addProposals(proposals_);
     }
 
-    function testFail_addProposalByUnauthorizedUser() public {
+    function testFail_AddProposalByUnauthorizedUser() public {
         string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
@@ -107,7 +107,7 @@ contract AddProposal is Test {
         stvE.addProposals(proposals_);
     }
 
-    function test_getProposalNames() public {
+    function test_GetProposalNames() public {
         string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
@@ -152,7 +152,7 @@ contract NumProposals is Test {
         stvE.addProposals(proposals_);
     }
 
-    function test_numProposals() public {
+    function test_NumProposals() public {
         assertEq(stvE.numProposals(), 4);
     }
 }
@@ -176,7 +176,7 @@ contract Suffrage is Test {
         testAddr = address(bytes20(keccak256(abi.encode("spongebob"))));
     }
 
-    function test_votingWithSuffrage() public {
+    function test_VotingWithSuffrage() public {
         stvE.suffrage(testAddr);
         stvE.start();
 
@@ -189,7 +189,7 @@ contract Suffrage is Test {
         stvE.vote(vote);
     }
 
-    function testFail_votingWithSuffrageBeforeStart() public {
+    function testFail_VotingWithSuffrageBeforeStart() public {
         stvE.suffrage(testAddr);
 
         uint256[] memory vote = new uint256[](3);
@@ -201,7 +201,7 @@ contract Suffrage is Test {
         stvE.vote(vote);
     }
 
-    function testFail_votingWithSuffrageAfterEnd() public {
+    function testFail_VotingWithSuffrageAfterEnd() public {
         stvE.suffrage(testAddr);
         stvE.start();
         stvE.end();
@@ -215,7 +215,7 @@ contract Suffrage is Test {
         stvE.vote(vote);
     }
 
-    function testFail_votingWithoutSuffrage() public {
+    function testFail_VotingWithoutSuffrage() public {
         stvE.start();
 
         uint256[] memory vote = new uint256[](3);
@@ -227,7 +227,7 @@ contract Suffrage is Test {
         stvE.vote(vote);
     }
 
-    function testFail_votingWithoutSuffrageBeforeStart() public {
+    function testFail_VotingWithoutSuffrageBeforeStart() public {
         uint256[] memory vote = new uint256[](3);
         vote[0] = 4;
         vote[1] = 2;
@@ -251,7 +251,7 @@ contract Start is Test {
         stvE.suffrage(alice);
     }
 
-    function test_start() public {
+    function test_Start() public {
         string[] memory proposals_ = new string[](1);
         proposals_[0] = "apple";
 
@@ -260,11 +260,11 @@ contract Start is Test {
         stvE.start();
     }
 
-    function testFail_startDisabledIfNoProposoals() public {
+    function testFail_StartDisabledIfNoProposoals() public {
         stvE.start();
     }
 
-    function testFail_startCanOnlyBeCalledOnce() public {
+    function testFail_StartCanOnlyBeCalledOnce() public {
         string[] memory proposals_ = new string[](1);
         proposals_[0] = "apple";
 
@@ -274,7 +274,7 @@ contract Start is Test {
         stvE.start();
     }
 
-    function testFail_startCanOnlyBeCalledByAuthorizedUserk() public {
+    function testFail_StartCanOnlyBeCalledByAuthorizedUserk() public {
         string[] memory proposals_ = new string[](1);
         proposals_[0] = "apple";
 
@@ -315,7 +315,7 @@ contract Vote is Test {
         stvE.start();
     }
 
-    function test_votesFromThreeUsers() public {
+    function test_VotesFromThreeUsers() public {
         uint256[] memory vote = new uint256[](3);
         vote[0] = 4;
         vote[1] = 2;
@@ -339,7 +339,7 @@ contract Vote is Test {
         stvE.vote(vote);
     }
 
-    function testFail_sameUserVotesTwice() public {
+    function testFail_SameUserVotesTwice() public {
         uint256[] memory vote = new uint256[](3);
         vote[0] = 4;
         vote[1] = 2;
@@ -356,7 +356,7 @@ contract Vote is Test {
         stvE.vote(vote);
     }
 
-    function test_submitVoteWithOneChoice() public {
+    function test_SubmitVoteWithOneChoice() public {
         uint256[] memory vote = new uint256[](1);
         vote[0] = 4;
 
@@ -364,7 +364,7 @@ contract Vote is Test {
         stvE.vote(vote);
     }
 
-    function test_submitVoteWithTwoChoices() public {
+    function test_SubmitVoteWithTwoChoices() public {
         uint256[] memory vote = new uint256[](2);
         vote[0] = 4;
         vote[1] = 3;
@@ -373,7 +373,7 @@ contract Vote is Test {
         stvE.vote(vote);
     }
 
-    function testFail_submitVoteWithFourChoices() public {
+    function testFail_SubmitVoteWithFourChoices() public {
         uint256[] memory vote = new uint256[](4);
         vote[0] = 4;
         vote[1] = 3;
@@ -384,7 +384,7 @@ contract Vote is Test {
         stvE.vote(vote);
     }
 
-    function testFail_submitVoteWithDuplicateChoices() public {
+    function testFail_SubmitVoteWithDuplicateChoices() public {
         uint256[] memory vote = new uint256[](3);
         vote[0] = 4;
         vote[1] = 3;
@@ -394,7 +394,7 @@ contract Vote is Test {
         stvE.vote(vote);
     }
 
-    function test_getVote() public {
+    function test_GetVote() public {
         // add alice's vote
         uint256[] memory vote = new uint256[](3);
         vote[0] = 4;
@@ -432,7 +432,7 @@ contract Vote is Test {
 
     }
 
-    function test_getVoteBeforeVoting() public {
+    function test_GetVoteBeforeVoting() public {
         uint256[] memory vote = new uint256[](3);
         
         // get alice's vote
@@ -578,7 +578,7 @@ contract End is Test {
         }
     }
 
-    function test_end() public {
+    function test_End() public {
         uint256[] memory winners = stvE.end();
         assertEq(winners.length, 3);
         assertEq(winners[0], 2);
@@ -586,7 +586,7 @@ contract End is Test {
         assertEq(winners[2], 6);
     }
 
-    function test_getWinners() public {
+    function test_GetWinners() public {
         stvE.end();
 
         uint256[] memory winners = stvE.winners();
@@ -598,12 +598,12 @@ contract End is Test {
 
     }
 
-    function testFail_startAfterVotingEnds() public {
+    function testFail_StartAfterVotingEnds() public {
         stvE.end();
         stvE.start();
     }
 
-    function testFail_addProposalAfterVotingEnds() public {
+    function testFail_AddProposalAfterVotingEnds() public {
         stvE.end();
 
         string[] memory proposals_ = new string[](1);
@@ -611,13 +611,13 @@ contract End is Test {
         stvE.addProposals(proposals_);
     }
 
-    function testFail_suffrageAfterVotingEnds() public {
+    function testFail_SuffrageAfterVotingEnds() public {
         stvE.end();
         address testAddr = address(bytes20(keccak256(abi.encode("spongebob"))));
         stvE.suffrage(testAddr);
     }
 
-    function testFail_votingAfterVotingEnds() public {
+    function testFail_VotingAfterVotingEnds() public {
         stvE.end();
 
         uint256[] memory vote = new uint256[](2);
