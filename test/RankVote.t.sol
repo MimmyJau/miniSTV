@@ -8,6 +8,20 @@ import "forge-std/console.sol";
 contract RankVoteHarness is RankVote {
     constructor() RankVote() {}
 
+    ////////////////////////////////////////////////////////////////////////
+    // Inherited functions from Tree
+
+    function exposed_getRoot() external view returns (bytes32) {
+        return getRoot();
+    }
+
+    function exposed_getChildren(bytes32 parent) external view returns (bytes32[] memory) {
+        return getChildren(parent);
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Internal functions and state from RankVote
+
     function exposed_Tree(
         bytes32 node32
     ) external view returns (
@@ -42,33 +56,33 @@ contract TestRankVote is Test {
         vote[2] = 3;
         rankVote.addVote(vote);
 
-        bytes32 root = rankVote.getRoot();
+        bytes32 root = rankVote.exposed_getRoot();
         (uint rootProposal, uint rootVotes, uint rootCumulativeVotes) = rankVote.exposed_Tree(root);
         assertEq(rootProposal, 0);
         assertEq(rootVotes, 0);
         assertEq(rootCumulativeVotes, 1);
-        assertEq(rankVote.getChildren(root).length, 1);
+        assertEq(rankVote.exposed_getChildren(root).length, 1);
 
-        bytes32 child1 = rankVote.getChildren(root)[0];
+        bytes32 child1 = rankVote.exposed_getChildren(root)[0];
         (uint child1Proposal, uint child1Votes, uint child1CumulativeVotes) = rankVote.exposed_Tree(child1);
         assertEq(child1Proposal, 1);
         assertEq(child1Votes, 0);
         assertEq(child1CumulativeVotes, 1);
-        assertEq(rankVote.getChildren(child1).length, 1);
+        assertEq(rankVote.exposed_getChildren(child1).length, 1);
 
-        bytes32 child2 = rankVote.getChildren(child1)[0];
+        bytes32 child2 = rankVote.exposed_getChildren(child1)[0];
         (uint child2Proposal, uint child2Votes, uint child2CumulativeVotes) = rankVote.exposed_Tree(child2);
         assertEq(child2Proposal, 2);
         assertEq(child2Votes, 0);
         assertEq(child2CumulativeVotes, 1);
-        assertEq(rankVote.getChildren(child2).length, 1);
+        assertEq(rankVote.exposed_getChildren(child2).length, 1);
 
-        bytes32 child3 = rankVote.getChildren(child2)[0];
+        bytes32 child3 = rankVote.exposed_getChildren(child2)[0];
         (uint child3Proposal, uint child3Votes, uint child3CumulativeVotes) = rankVote.exposed_Tree(child3);
         assertEq(child3Proposal, 3);
         assertEq(child3Votes, 1);
         assertEq(child3CumulativeVotes, 1);
-        assertEq(rankVote.getChildren(child3).length, 0);
+        assertEq(rankVote.exposed_getChildren(child3).length, 0);
     }
 
     function test_AddVoteWithDuplicates() public {
@@ -147,89 +161,89 @@ contract TestRankVote is Test {
     function test_AddMultipleVotes() public {
         addTestVotes();
 
-        bytes32 root = rankVote.getRoot();
+        bytes32 root = rankVote.exposed_getRoot();
         (uint rootProposal, uint rootVotes, uint rootCumulativeVotes) = rankVote.exposed_Tree(root);
         assertEq(rootProposal, 0);
         assertEq(rootVotes, 0);
         assertEq(rootCumulativeVotes, 10);
-        assertEq(rankVote.getChildren(root).length, 2);
+        assertEq(rankVote.exposed_getChildren(root).length, 2);
 
-        bytes32 node1 = rankVote.getChildren(root)[0];
+        bytes32 node1 = rankVote.exposed_getChildren(root)[0];
         (uint node1Proposal, uint node1Votes, uint node1CumulativeVotes) = rankVote.exposed_Tree(node1);
         assertEq(node1Proposal, 1);
         assertEq(node1Votes, 1);
         assertEq(node1CumulativeVotes, 9);
-        assertEq(rankVote.getChildren(node1).length, 3);
+        assertEq(rankVote.exposed_getChildren(node1).length, 3);
 
         // To avoid "stack too deep" errors: https://ethereum.stackexchange.com/a/86514/127263
         {
-            bytes32 node12 = rankVote.getChildren(node1)[0];
+            bytes32 node12 = rankVote.exposed_getChildren(node1)[0];
             (uint node12Proposal, uint node12Votes, uint node12CumulativeVotes) = rankVote.exposed_Tree(node12);
             assertEq(node12Proposal, 2);
             assertEq(node12Votes, 2);
             assertEq(node12CumulativeVotes, 4);
-            assertEq(rankVote.getChildren(node12).length, 2);
+            assertEq(rankVote.exposed_getChildren(node12).length, 2);
 
-            bytes32 node124 = rankVote.getChildren(node12)[0];
+            bytes32 node124 = rankVote.exposed_getChildren(node12)[0];
             (uint node124Proposal, uint node124Votes, uint node124CumulativeVotes) = rankVote.exposed_Tree(node124);
             assertEq(node124Proposal, 4);
             assertEq(node124Votes, 1);
             assertEq(node124CumulativeVotes, 1);
-            assertEq(rankVote.getChildren(node124).length, 0);
+            assertEq(rankVote.exposed_getChildren(node124).length, 0);
 
-            bytes32 node123 = rankVote.getChildren(node12)[1];
+            bytes32 node123 = rankVote.exposed_getChildren(node12)[1];
             (uint node123Proposal, uint node123Votes, uint node123CumulativeVotes) = rankVote.exposed_Tree(node123);
             assertEq(node123Proposal, 3);
             assertEq(node123Votes, 1);
             assertEq(node123CumulativeVotes, 1);
-            assertEq(rankVote.getChildren(node123).length, 0);
+            assertEq(rankVote.exposed_getChildren(node123).length, 0);
         }
 
         {
-            bytes32 node13 = rankVote.getChildren(node1)[1];
+            bytes32 node13 = rankVote.exposed_getChildren(node1)[1];
             (uint node13Proposal, uint node13Votes, uint node13CumulativeVotes) = rankVote.exposed_Tree(node13);
             assertEq(node13Proposal, 3);
             assertEq(node13Votes, 0);
             assertEq(node13CumulativeVotes, 1);
-            assertEq(rankVote.getChildren(node13).length, 1);
+            assertEq(rankVote.exposed_getChildren(node13).length, 1);
 
-            bytes32 node132 = rankVote.getChildren(node13)[0];
+            bytes32 node132 = rankVote.exposed_getChildren(node13)[0];
             (uint node132Proposal, uint node132Votes, uint node132CumulativeVotes) = rankVote.exposed_Tree(node132);
             assertEq(node132Proposal, 2);
             assertEq(node132Votes, 1);
             assertEq(node132CumulativeVotes, 1);
-            assertEq(rankVote.getChildren(node132).length, 0);
+            assertEq(rankVote.exposed_getChildren(node132).length, 0);
         }
 
         {
-            bytes32 node14 = rankVote.getChildren(node1)[2];
+            bytes32 node14 = rankVote.exposed_getChildren(node1)[2];
             (uint node14Proposal, uint node14Votes, uint node14CumulativeVotes) = rankVote.exposed_Tree(node14);
             assertEq(node14Proposal, 4);
             assertEq(node14Votes, 0);
             assertEq(node14CumulativeVotes, 3);
-            assertEq(rankVote.getChildren(node14).length, 2);
+            assertEq(rankVote.exposed_getChildren(node14).length, 2);
 
-            bytes32 node143 = rankVote.getChildren(node14)[0];
+            bytes32 node143 = rankVote.exposed_getChildren(node14)[0];
             (uint node143Proposal, uint node143Votes, uint node143CumulativeVotes) = rankVote.exposed_Tree(node143);
             assertEq(node143Proposal, 3);
             assertEq(node143Votes, 2);
             assertEq(node143CumulativeVotes, 2);
-            assertEq(rankVote.getChildren(node143).length, 0);
+            assertEq(rankVote.exposed_getChildren(node143).length, 0);
 
-            bytes32 node142 = rankVote.getChildren(node14)[1];
+            bytes32 node142 = rankVote.exposed_getChildren(node14)[1];
             (uint node142Proposal, uint node142Votes, uint node142CumulativeVotes) = rankVote.exposed_Tree(node142);
             assertEq(node142Proposal, 2);
             assertEq(node142Votes, 1);
             assertEq(node142CumulativeVotes, 1);
-            assertEq(rankVote.getChildren(node142).length, 0);
+            assertEq(rankVote.exposed_getChildren(node142).length, 0);
         }
 
-        bytes32 node2 = rankVote.getChildren(root)[1];
+        bytes32 node2 = rankVote.exposed_getChildren(root)[1];
         (uint node2Proposal, uint node2Votes, uint node2CumulativeVotes) = rankVote.exposed_Tree(node2);
         assertEq(node2Proposal, 2);
         assertEq(node2Votes, 1);
         assertEq(node2CumulativeVotes, 1);
-        assertEq(rankVote.getChildren(node2).length, 0);
+        assertEq(rankVote.exposed_getChildren(node2).length, 0);
     }
 }
 

@@ -23,7 +23,7 @@ contract Tree {
         return keccak256(abi.encode(parent, index, time));
     }
 
-    function addChild(bytes32 parent) public returns (bytes32) {
+    function addChild(bytes32 parent) internal returns (bytes32) {
         // Generate new key for child node.
         bytes32 newChild = generateId(parent);
         tree[parent].children.push(newChild);
@@ -33,15 +33,15 @@ contract Tree {
         return newChild;
     }
 
-    function getChildren(bytes32 parent) public view returns (bytes32[] memory) {
+    function getChildren(bytes32 parent) internal view returns (bytes32[] memory) {
         return tree[parent].children;
     }
 
-    function getParent(bytes32 node) public view returns (bytes32) {
+    function getParent(bytes32 node) internal view returns (bytes32) {
         return tree[node].parent;
     }
 
-    function getRoot() public view returns (bytes32) {
+    function getRoot() internal view returns (bytes32) {
         return root;
     }
 
