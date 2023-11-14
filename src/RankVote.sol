@@ -100,8 +100,9 @@ contract RankVote is Tree {
         updateCumulativeVotes(parent);
     }
 
+    /// @notice Add a ranked vote
     /// @dev The entrypoint for adding a vote to the tree. Hands off to addVoteRecursive
-    /// to do most of the heavy-lifting..
+    /// to do most of the heavy-lifting.
     /// @param vote The user's vote ranking.
     function addVote(uint256[] calldata vote) public {
         require(vote.unique());

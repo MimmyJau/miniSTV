@@ -57,7 +57,7 @@ contract Stv is RankVote {
     ////////////////////////////////////////////////////////////////////////
     // Core Functions
 
-    /// @notice Calculates the droop quota, the minimum votes required for a proposal to "win"
+    /// @dev Calculates the droop quota, the minimum votes required for a proposal to "win"
     /// @return The droop quota as an integer
     function droopQuota() internal view returns (uint256) {
         return totalVotes() / (numWinners + 1) + 1;
@@ -122,8 +122,8 @@ contract Stv is RankVote {
         return dTally;
     }
 
-    /// @notice Entrypoint for distributing votes (after proposal has won or been eliminated)
-    /// @dev Calls distributeVotesRecursive to traverse tree and count votes
+    /// @dev Entrypoint for distributing votes (after proposal has won or been eliminated).
+    /// Calls distributeVotesRecursive to traverse tree and count votes
     /// @param tally Array of current vote counts for each proposal
     /// @param dProposal The proposal whose votes we would like to distribute
     /// @param excessVotes Number of excess votes to be distributed
@@ -151,8 +151,7 @@ contract Stv is RankVote {
         return tally;
     }
 
-    /// @notice Entrypoint for tallying votes
-    /// @dev Calls tallyDescendents to traverse tree and count votes
+    /// @dev Entrypoint for tallying votes. Calls tallyDescendents to traverse tree and count votes.
     /// @return tally An array with the vote count of each proposal
     function tallyVotes() internal view returns (uint[] memory tally) {
         // index 0 is not used in proposals
@@ -164,16 +163,16 @@ contract Stv is RankVote {
         return tally;
     }
 
-    /// @notice WIP! This is a yet-to-be-implemented RNG for picking proposal to elect.
-    /// @dev As of now, it picks the first element in the list, biasing towards earlier proposals
+    /// @dev WIP! This is a yet-to-be-implemented RNG for picking proposal to elect.
+    /// As of now, it picks the first element in the list, biasing towards earlier proposals
     /// @param proposals List of proposals from which you'd like to pick a random one
     /// @return randomWinner_ The randomly-selected proposal to be elected
     function randomWinner(uint256[] memory proposals) private pure returns (uint256 randomWinner_) {
         return proposals[0];
     }
 
-    /// @notice WIP! This is a yet-to-be-implemented RNG for picking proposal to eliminate.
-    /// @dev As of now, it picks the last element in the list, biasing towards earlier proposals
+    /// @dev WIP! This is a yet-to-be-implemented RNG for picking proposal to eliminate.
+    /// As of now, it picks the last element in the list, biasing towards earlier proposals
     /// @param proposals List of proposals from which you'd like to pick a random one
     /// @return randomLoser_ The randomly-selected proposal to be eliminated
     function randomLoser(uint256[] memory proposals) private pure returns (uint256 randomLoser_) {
