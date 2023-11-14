@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Stv} from "../src/Stv.sol";
+import {Stv} from "./Stv.sol";
 
 uint256 constant NUM_WINNERS = 3;
 uint256 constant NUM_RANKINGS = 3;
@@ -14,7 +14,7 @@ struct Voter {
 
 contract StvExample {
     address public chairperson;
-    bytes[] public proposals;
+    string[] public proposals;
     bool private _active;
     bool private _over;
     uint256[] private _winners;
@@ -30,7 +30,7 @@ contract StvExample {
     /// @notice Add a list of proposals, only owner has permission
     /// @dev No restriction on size of proposal
     /// @param proposals_ List of proposals in bytes
-    function addProposals(bytes[] calldata proposals_) external {
+    function addProposals(string[] calldata proposals_) external {
         require(msg.sender == chairperson);
         require(!_active);
         require(!_over);
@@ -43,10 +43,10 @@ contract StvExample {
     /// @notice Get list of names of all proposals
     /// @return proposalNames A list of all the proposal names. Will always have length
     ///         numProposals() + 1, i.e. index 0 will be empty.
-    function getProposalNames() external view returns (bytes[] memory proposalNames) {
+    function getProposalNames() external view returns (string[] memory proposalNames) {
         require(_voters[msg.sender].weight > 0);
 
-        proposalNames = new bytes[](proposals.length);
+        proposalNames = new string[](proposals.length);
 
         for (uint256 i = 0; i < proposals.length; i++) {
             proposalNames[i] = proposals[i];

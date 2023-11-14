@@ -19,7 +19,7 @@ contract AddProposal is Test {
     }
 
     function test_addOneProposal() public {
-        bytes[] memory proposals_ = new bytes[](1);
+        string[] memory proposals_ = new string[](1);
         proposals_[0] = "apple";
 
         stvE.addProposals(proposals_);
@@ -28,7 +28,7 @@ contract AddProposal is Test {
     }
 
     function test_addFourProposals() public {
-        bytes[] memory proposals_ = new bytes[](4);
+        string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
         proposals_[2] = "banana";
@@ -43,7 +43,7 @@ contract AddProposal is Test {
     }
 
     function test_addMoreProposalsToExistingProposals() public {
-        bytes[] memory proposals_ = new bytes[](4);
+        string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
         proposals_[2] = "banana";
@@ -69,7 +69,7 @@ contract AddProposal is Test {
     }
     
     function test_addEmptyProposal() public {
-        bytes[] memory proposals_ = new bytes[](1);
+        string[] memory proposals_ = new string[](1);
         proposals_[0] = "";
 
         stvE.addProposals(proposals_);
@@ -78,7 +78,7 @@ contract AddProposal is Test {
     }
 
     function testFail_addProposalsAfterVotingStarts() public {
-        bytes[] memory proposals_ = new bytes[](4);
+        string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
         proposals_[2] = "banana";
@@ -97,7 +97,7 @@ contract AddProposal is Test {
     }
 
     function testFail_addProposalByUnauthorizedUser() public {
-        bytes[] memory proposals_ = new bytes[](4);
+        string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
         proposals_[2] = "banana";
@@ -108,7 +108,7 @@ contract AddProposal is Test {
     }
 
     function test_getProposalNames() public {
-        bytes[] memory proposals_ = new bytes[](4);
+        string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
         proposals_[2] = "banana";
@@ -123,7 +123,7 @@ contract AddProposal is Test {
 
         stvE.addProposals(proposals_);
 
-        bytes[] memory proposalName = stvE.getProposalNames();
+        string[] memory proposalName = stvE.getProposalNames();
         assertEq(proposalName.length, 9);
         assertEq(proposalName[1], "apple");
         assertEq(proposalName[2], "orange");
@@ -143,7 +143,7 @@ contract NumProposals is Test {
     function setUp() public {
         stvE = new StvExample();
 
-        bytes[] memory proposals_ = new bytes[](4);
+        string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
         proposals_[2] = "banana";
@@ -165,7 +165,7 @@ contract Suffrage is Test {
         stvE = new StvExample();
 
         // test proposals
-        bytes[] memory proposals_ = new bytes[](4);
+        string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
         proposals_[2] = "banana";
@@ -252,7 +252,7 @@ contract Start is Test {
     }
 
     function test_start() public {
-        bytes[] memory proposals_ = new bytes[](1);
+        string[] memory proposals_ = new string[](1);
         proposals_[0] = "apple";
 
         stvE.addProposals(proposals_);
@@ -265,7 +265,7 @@ contract Start is Test {
     }
 
     function testFail_startCanOnlyBeCalledOnce() public {
-        bytes[] memory proposals_ = new bytes[](1);
+        string[] memory proposals_ = new string[](1);
         proposals_[0] = "apple";
 
         stvE.addProposals(proposals_);
@@ -275,7 +275,7 @@ contract Start is Test {
     }
 
     function testFail_startCanOnlyBeCalledByAuthorizedUserk() public {
-        bytes[] memory proposals_ = new bytes[](1);
+        string[] memory proposals_ = new string[](1);
         proposals_[0] = "apple";
 
         stvE.addProposals(proposals_);
@@ -296,7 +296,7 @@ contract Vote is Test {
         stvE = new StvExample();
 
         // test proposals
-        bytes[] memory proposals_ = new bytes[](4);
+        string[] memory proposals_ = new string[](4);
         proposals_[0] = "apple";
         proposals_[1] = "orange";
         proposals_[2] = "banana";
@@ -461,7 +461,7 @@ contract End is Test {
         stvE = new StvExample();
 
         // proposals
-        bytes[] memory proposals_ = new bytes[](7);
+        string[] memory proposals_ = new string[](7);
         proposals_[0] = "orange";
         proposals_[1] = "pear";
         proposals_[2] = "strawberry";
@@ -606,7 +606,7 @@ contract End is Test {
     function testFail_addProposalAfterVotingEnds() public {
         stvE.end();
 
-        bytes[] memory proposals_ = new bytes[](1);
+        string[] memory proposals_ = new string[](1);
         proposals_[0] = "mango";
         stvE.addProposals(proposals_);
     }
