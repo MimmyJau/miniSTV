@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Stv} from "../Stv.sol";
+import { Stv } from "../src/Stv.sol";
 
 uint256 constant NUM_WINNERS = 3;
 uint256 constant NUM_RANKINGS = 3;
